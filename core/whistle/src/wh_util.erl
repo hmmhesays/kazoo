@@ -1295,15 +1295,15 @@ decr_timeout(Timeout, Elapsed) when is_integer(Elapsed) ->
         'false' -> Diff
     end;
 decr_timeout(Timeout, Start) ->
-    decr_timeout(Timeout, ?MODULE:elapsed_ms(Start)).
+    decr_timeout(Timeout, elapsed_ms(Start)).
 
 -spec microseconds_to_seconds(float() | integer() | string() | binary()) -> non_neg_integer().
-microseconds_to_seconds(Microseconds) -> to_integer(Microseconds) div 1000000.
+microseconds_to_seconds(Microseconds) -> to_integer(Microseconds) div ?MICROSECONDS_IN_SECOND.
 milliseconds_to_seconds(Milliseconds) -> to_integer(Milliseconds) div ?MILLISECONDS_IN_SECOND.
 
--spec elapsed_s(wh_now() | pos_integer()) -> pos_integer().
--spec elapsed_ms(wh_now() | pos_integer()) -> pos_integer().
--spec elapsed_us(wh_now() | pos_integer()) -> pos_integer().
+-spec elapsed_s(wh_now() | pos_integer()) -> integer().
+-spec elapsed_ms(wh_now() | pos_integer()) -> integer().
+-spec elapsed_us(wh_now() | pos_integer()) -> integer().
 elapsed_s({_,_,_}=Start) -> elapsed_s(Start, os:timestamp());
 elapsed_s(Start) when is_integer(Start) -> elapsed_s(Start, current_tstamp()).
 
@@ -1313,26 +1313,29 @@ elapsed_ms(Start) when is_integer(Start) -> elapsed_ms(Start, current_tstamp()).
 elapsed_us({_,_,_}=Start) -> elapsed_us(Start, os:timestamp());
 elapsed_us(Start) when is_integer(Start) -> elapsed_us(Start, current_tstamp()).
 
--spec elapsed_s(wh_now() | pos_integer(), wh_now() | pos_integer()) -> pos_integer().
--spec elapsed_ms(wh_now() | pos_integer(), wh_now() | pos_integer()) -> pos_integer().
--spec elapsed_us(wh_now() | pos_integer(), wh_now() | pos_integer()) -> pos_integer().
-elapsed_s({_,_,_}=Start, {_,_,_}=Now) -> timer:now_diff(Now, Start) div 1000000;
+-spec elapsed_s(wh_now() | pos_integer(), wh_now() | pos_integer()) -> integer().
+-spec elapsed_ms(wh_now() | pos_integer(), wh_now() | pos_integer()) -> integer().
+-spec elapsed_us(wh_now() | pos_integer(), wh_now() | pos_integer()) -> integer().
+elapsed_s({_,_,_}=Start, {_,_,_}=Now) -> timer:now_diff(Now, Start) div ?MICROSECONDS_IN_SECOND;
 elapsed_s({_,_,_}=Start, Now) -> elapsed_s(now_s(Start), Now);
 elapsed_s(Start, {_,_,_}=Now) -> elapsed_s(Start, now_s(Now));
-elapsed_s(Start, Now) when is_integer(Start), is_integer(Now) -> Now - Start.
+elapsed_s(Start, Now)
+  when is_integer(Start), is_integer(Now) ->
+    (Now - Start) * 1.
 
 elapsed_ms({_,_,_}=Start, {_,_,_}=Now) -> timer:now_diff(Now, Start) div ?MILLISECONDS_IN_SECOND;
 elapsed_ms({_,_,_}=Start, Now) -> elapsed_ms(now_s(Start), Now);
 elapsed_ms(Start, {_,_,_}=Now) -> elapsed_ms(Start, now_s(Now));
 elapsed_ms(Start, Now)
-  when is_integer(Start),
-       is_integer(Now) ->
+  when is_integer(Start), is_integer(Now) ->
     (Now - Start) * ?MILLISECONDS_IN_SECOND.
 
 elapsed_us({_,_,_}=Start, {_,_,_}=Now) -> timer:now_diff(Now, Start);
 elapsed_us({_,_,_}=Start, Now) -> elapsed_us(now_s(Start), Now);
 elapsed_us(Start, {_,_,_}=Now) -> elapsed_us(Start, now_s(Now));
-elapsed_us(Start, Now) when is_integer(Start), is_integer(Now) -> (Now - Start) * 1000000.
+elapsed_us(Start, Now)
+  when is_integer(Start), is_integer(Now) ->
+    (Now - Start) * ?MICROSECONDS_IN_SECOND.
 
 -spec now() -> wh_now().
 now() -> erlang:timestamp().

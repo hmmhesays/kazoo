@@ -75,9 +75,6 @@
          ,normalize_jobj/3
          ,normalize/1
          ,normalize_key/1
-         ,is_json_object/1, is_json_object/2
-         ,is_valid_json_object/1
-         ,is_json_term/1
          ,are_identical/2
         ]).
 -export([public_fields/1
