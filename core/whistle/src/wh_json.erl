@@ -907,7 +907,7 @@ normalize_key_char(C) when is_integer(C), 16#D8 =< C, C =< 16#DE -> C + 32; % so
 normalize_key_char(C) -> C.
 
 -type search_replace_format() :: {ne_binary(), ne_binary()} |
-                                  {ne_binary(), ne_binary(), fun((any()) -> any())}.
+                                 {ne_binary(), ne_binary(), fun((any()) -> any())}.
 -type search_replace_formatters() :: [search_replace_format()].
 -spec normalize_jobj(object(), ne_binaries(), search_replace_formatters()) -> object().
 normalize_jobj(?JSON_WRAPPER(_)=JObj, RemoveKeys, SearchReplaceFormatters) ->
