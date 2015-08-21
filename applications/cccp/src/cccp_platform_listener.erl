@@ -73,6 +73,7 @@ start_link(Call) ->
 %%                     {stop, Reason}
 %% @end
 %%--------------------------------------------------------------------
+-spec init([whapps_call:call()]) -> {'ok', state()}.
 init([Call]) ->
     CallUpdate = whapps_call:kvs_store('server_pid', self(), Call),
     {'ok', #state{call=CallUpdate}}.
@@ -183,7 +184,7 @@ handle_answer(JObj, Props) ->
 
 -spec process_call(whapps_call:call()) -> 'ok'.
 process_call(Call) ->
-    CID = wnm_util:normalize_number(whapps_call:caller_id_number(Call)),
+    CID = knm_converters:normalize(whapps_call:caller_id_number(Call)),
     case cccp_util:authorize(CID, <<"cccps/cid_listing">>) of
         [AccountId, OutboundCID, AuthDocId] ->
             dial(AccountId, OutboundCID, AuthDocId, Call);
@@ -227,4 +228,3 @@ handle_entered_pin(Call, Retries, EnteredPin) ->
             whapps_call_command:b_prompt(<<"disa-invalid_pin">>, Call),
             pin_collect(Call, Retries - 1)
     end.
-
