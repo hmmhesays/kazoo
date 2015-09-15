@@ -13,6 +13,8 @@
 *.dump
 deps/*/rebar
 core/*/test/*.app
+core/*/test/*.html
+deps/*/test
 applications/*/priv/archive_data/*
 applications/*/test/*.app
 deps/*/test
