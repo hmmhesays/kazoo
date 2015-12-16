@@ -17,7 +17,7 @@
          ,validate/1, validate/2
          ,put/1, put/2
          ,post/2
-         ,cleanup_reset_ids/0
+         ,cleanup_reset_ids/1
         ]).
 
 -include("crossbar.hrl").
@@ -32,13 +32,14 @@
 -define(RECOVERY, <<"recovery">>).
 -define(RESET_ID, <<"reset_id">>).
 -define(RESET_ID_SIZE, 256).
+-define(RESET_PVT_TYPE, <<"password_reset">>).
 
 %%%===================================================================
 %%% API
 %%%===================================================================
 init() ->
     couch_mgr:db_create(?KZ_TOKEN_DB),
-    _ = crossbar_bindings:bind(crossbar_cleanup:binding_day(), ?MODULE, 'cleanup_reset_ids'),
+    _ = crossbar_bindings:bind(crossbar_cleanup:binding_account(), ?MODULE, 'cleanup_reset_ids'),
 
     _ = crossbar_bindings:bind(<<"*.authenticate">>, ?MODULE, 'authenticate'),
     _ = crossbar_bindings:bind(<<"*.authorize">>, ?MODULE, 'authorize'),
@@ -343,34 +344,29 @@ load_md5_results(Context, JObj) ->
 
 
 %% @public
--spec cleanup_reset_ids() -> 'ok'.
-cleanup_reset_ids() ->
-    CreatedBefore = wh_util:current_tstamp() - 2 * ?SECONDS_IN_DAY,
-    ViewOptions = [{'startkey', 0}
-                   ,{'endkey', CreatedBefore}
-                   %% TODO: find a limit that matches the number of pwd resets per day
-                   ,{'limit', couch_util:max_bulk_insert()}
+-spec cleanup_reset_ids(ne_binary()) -> 'ok'.
+cleanup_reset_ids(AccountDb) ->
+    ViewOptions = [{'key', ?RESET_PVT_TYPE}
                    ,'include_docs'
                   ],
-    case couch_mgr:get_results(?WH_ACCOUNTS_DB, ?LIST_BY_MTIME, ViewOptions) of
-        {'error', _E} ->
-            lager:debug("failed to lookup expired reset_ids: ~p", [_E]);
-        {'ok', []} ->
-            lager:debug("no expired reset_ids found");
-        {'ok', UserDocs} ->
-            lager:debug("checking ~b user documents", [length(UserDocs)]),
-            couch_mgr:suppress_change_notice(),
-            ensure_reset_id_deleted(UserDocs),
-            couch_mgr:enable_change_notice(),
-            lager:debug("removed yesterday's expired reset_ids")
+    case couch_mgr:get_results(AccountDb, <<"maintenance/listing_by_type">>, ViewOptions) of
+        {'ok', [_|_]=ResetIdDocs} ->
+            lager:debug("checking ~p reset_id documents"),
+            DelDocs = fun (ResetIdDoc) -> maybe_delete_doc(AccountDb, ResetIdDoc) end,
+            lists:foreach(DelDocs, ResetIdDocs);
+        _Else -> 'ok'
     end.
 
--spec ensure_reset_id_deleted(wh_json:objects()) -> 'ok'.
-ensure_reset_id_deleted([Doc|Docs]) ->
-    {'ok', _} = couch_mgr:save_doc(wh_doc:account_db(Doc)
-                                  ,wh_json:delete_key(?RESET_ID, Doc)),
-    ensure_reset_id_deleted(Docs);
-ensure_reset_id_deleted([]) -> 'ok'.
+-spec maybe_delete_doc(ne_binary(), wh_json:object()) -> 'ok'.
+maybe_delete_doc(AccountDb, ResetIdDoc) ->
+    TwoDaysAgo = wh_util:current_tstamp() - 2 * ?SECONDS_IN_DAY,
+    Created = wh_doc:created(ResetIdDoc),
+    case TwoDaysAgo < Created of
+        'true' -> 'ok';
+        'false' ->
+            _ = couch_mgr:del_doc(AccountDb, wh_doc:id(ResetIdDoc)),
+            'ok'
+    end.
 
 
 %% @private
@@ -433,32 +429,29 @@ maybe_load_user_doc_by_username(Account, Context) ->
 %% @private
 -spec save_reset_id_then_send_email(cb_context:context()) -> cb_context:context().
 save_reset_id_then_send_email(Context) ->
-    ResetId = reset_id(cb_context:account_db(Context)),
-    UserDoc = wh_json:set_value(?RESET_ID, ResetId, cb_context:doc(Context)),
-    Context1 = crossbar_doc:save(cb_context:set_doc(Context, UserDoc)),
-    case cb_context:resp_status(Context1) of
-        'success' ->
-            Email = wh_json:get_ne_binary_value(<<"email">>, UserDoc),
-            lager:debug("created recovery id, sending email to '~s'", [Email]),
-            ReqData = cb_context:req_data(Context),
-            UIURL = wh_json:get_ne_binary_value(<<"ui_url">>, ReqData),
-            Link = reset_link(UIURL, ResetId),
-            lager:debug("created password reset link: ~s", [Link]),
-            Notify = [{<<"Email">>, Email}
-                      ,{<<"First-Name">>, wh_json:get_value(<<"first_name">>, UserDoc)}
-                      ,{<<"Last-Name">>,  wh_json:get_value(<<"last_name">>, UserDoc)}
-                      ,{<<"Password-Reset-Link">>, Link}
-                      ,{<<"Account-ID">>, wh_doc:account_id(UserDoc)}
-                      ,{<<"Account-DB">>, wh_doc:account_db(UserDoc)}
-                      ,{<<"Request">>, wh_json:delete_key(<<"username">>, ReqData)}
-                      | wh_api:default_headers(?APP_VERSION, ?APP_NAME)
-                     ],
-            'ok' = wapi_notifications:publish_pwd_recovery(Notify),
-            Msg = <<"Request for password reset handled, email sent to: ", Email/binary>>,
-            crossbar_util:response(Msg, Context1);
-        _Status ->
-            Context1
-    end.
+    AccountDb = cb_context:account_db(Context),
+    ResetId = reset_id(AccountDb),
+    %% Not much chance for doc to already exist
+    {'ok',_} = couch_mgr:save_doc(AccountDb, create_resetid_doc(ResetId)),
+    UserDoc = cb_context:doc(Context),
+    Email = wh_json:get_ne_binary_value(<<"email">>, UserDoc),
+    lager:debug("created recovery id, sending email to '~s'", [Email]),
+    ReqData = cb_context:req_data(Context),
+    UIURL = wh_json:get_ne_binary_value(<<"ui_url">>, ReqData),
+    Link = reset_link(UIURL, ResetId),
+    lager:debug("created password reset link: ~s", [Link]),
+    Notify = [{<<"Email">>, Email}
+              ,{<<"First-Name">>, wh_json:get_value(<<"first_name">>, UserDoc)}
+              ,{<<"Last-Name">>,  wh_json:get_value(<<"last_name">>, UserDoc)}
+              ,{<<"Password-Reset-Link">>, Link}
+              ,{<<"Account-ID">>, wh_doc:account_id(UserDoc)}
+              ,{<<"Account-DB">>, wh_doc:account_db(UserDoc)}
+              ,{<<"Request">>, wh_json:delete_key(<<"username">>, ReqData)}
+              | wh_api:default_headers(?APP_VERSION, ?APP_NAME)
+             ],
+    'ok' = wapi_notifications:publish_pwd_recovery(Notify),
+    Msg = <<"Request for password reset handled, email sent to: ", Email/binary>>,
+    crossbar_util:response(Msg, Context).
 
 
 %% @private
@@ -466,16 +459,12 @@ save_reset_id_then_send_email(Context) ->
 maybe_load_user_doc_via_reset_id(Context) ->
     ResetId = wh_json:get_ne_binary_value(?RESET_ID, cb_context:req_data(Context)),
     AccountDb = reset_id(ResetId),
-    lager:debug("attempting to lookup user doc using reset_id: ~s", [ResetId]),
-    ViewOptions = [{'key', ResetId}
-                   ,'include_docs'
-                  ],
-    case couch_mgr:get_results(AccountDb, ?LIST_BY_RESET_ID, ViewOptions) of
-        {'ok', [User]} ->
-            lager:debug("user was found"),
-            Doc = wh_json:delete_key(?RESET_ID, User),
+    lager:debug("looking up password reset doc: ~s", [ResetId]),
+    case couch_mgr:open_cache_doc(AccountDb, ResetId) of
+        {'ok', [ResetIdDoc]} ->
+            lager:debug("found password reset doc"),
+            _ = couch_mgr:del_doc(AccountDb, ResetIdDoc),
             cb_context:setters(Context, [{fun cb_context:set_account_db/2, AccountDb}
-                                         ,{fun cb_context:set_doc/2, Doc}
                                          ,{fun cb_context:set_resp_status/2, 'success'}
                                         ]);
         _ ->
@@ -501,6 +490,16 @@ reset_id(<<ResetId:?RESET_ID_SIZE/binary>>) ->
 reset_link(UIURL, ResetId) ->
     Url = hd(binary:split(UIURL, <<"#">>)),
     <<Url/binary, "/#/", (?RECOVERY)/binary, ":", ResetId/binary>>.
+
+%% @private
+-spec create_resetid_doc(ne_binary()) -> wh_json:object().
+create_resetid_doc(ResetId) ->
+    wh_json:from_list(
+      [{<<"_id">>, ResetId}
+       ,{<<"pvt_created">>, wh_util:current_tstamp()}
+       ,{<<"pvt_type">>, ?RESET_PVT_TYPE}
+      ]
+     ).
 
 %%--------------------------------------------------------------------
 %% @private
