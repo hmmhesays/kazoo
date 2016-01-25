@@ -77,7 +77,7 @@
 -spec fetch(ne_binary()) -> number_return().
 -spec fetch(ne_binary(), wh_proplist()) -> number_return().
 fetch(Num) ->
-    fetch(Num, ?MODULE:default_options()).
+    fetch(Num, default_options()).
 
 fetch(Num, Options) ->
     NormalizedNum = knm_converters:normalize(Num),

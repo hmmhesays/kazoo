@@ -73,10 +73,8 @@
 -spec new() -> knm_number().
 new() -> #knm_number{}.
 
--spec get(ne_binary()) ->
-                 knm_number_return().
--spec get(ne_binary(), wh_proplist()) ->
-                 knm_number_return().
+-spec get(ne_binary()) -> knm_number_return().
+-spec get(ne_binary(), wh_proplist()) -> knm_number_return().
 get(Num) ->
     get(Num, knm_phone_number:default_options()).
 
@@ -153,10 +151,8 @@ move(Num, MoveTo, Options) ->
 %% @doc
 %% @end
 %%--------------------------------------------------------------------
--spec update(ne_binary(), knm_phone_number:set_functions()) ->
-                    knm_number_return().
--spec update(ne_binary(), knm_phone_number:set_functions(), wh_proplist()) ->
-                    knm_number_return().
+-spec update(ne_binary(), knm_phone_number:set_functions()) -> knm_number_return().
+-spec update(ne_binary(), knm_phone_number:set_functions(), wh_proplist()) -> knm_number_return().
 update(Num, Routines) ->
     update(Num, Routines, knm_phone_number:default_options()).
 
