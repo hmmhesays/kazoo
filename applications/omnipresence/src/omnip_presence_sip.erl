@@ -359,7 +359,7 @@ map_direction(<<"inbound">>) -> <<"initiator">>;
 map_direction(<<"outbound">>) -> <<"recipient">>;
 map_direction(Other) -> Other.
 
--spec props_to_call(wh_proplist()) -> #call{} | 'undefined'.
+-spec props_to_call(wh_proplist()) -> api(#call{}).
 props_to_call(Props) ->
     case props:get_value(<<"uuid">>, Props) of
         'undefined' -> 'undefined';

@@ -359,7 +359,7 @@ foldl(F, Acc0, ?JSON_WRAPPER([])) when is_function(F, 3) -> Acc0;
 foldl(F, Acc0, ?JSON_WRAPPER(Prop)) when is_function(F, 3) ->
     lists:foldl(fun({Key, Value}, Acc1) -> F(Key, Value, Acc1) end, Acc0, Prop).
 
--spec get_string_value(key(), object() | objects()) -> 'undefined' | list().
+-spec get_string_value(key(), object() | objects()) -> api(list()).
 -spec get_string_value(key(), object(), Default) -> list() | Default.
 get_string_value(Key, JObj) ->
     get_string_value(Key, JObj, 'undefined').
@@ -369,7 +369,7 @@ get_string_value(Key, JObj, Default) ->
         Value -> safe_cast(Value, Default, fun wh_util:to_list/1)
     end.
 
--spec get_list_value(key(), object() | objects()) -> 'undefined' | list().
+-spec get_list_value(key(), object() | objects()) -> api(list()).
 -spec get_list_value(key(), object() | objects(), Default) -> Default | list().
 get_list_value(Key, JObj) ->
     get_list_value(Key, JObj, 'undefined').
@@ -521,10 +521,8 @@ get_private_keys(JObj) ->
             ,is_private_key(Key)
     ].
 
--spec get_ne_value(key(), object() | objects()) ->
-                          json_term() | 'undefined'.
--spec get_ne_value(key(), object() | objects(), Default) ->
-                          json_term() | Default.
+-spec get_ne_value(key(), object() | objects()) -> api(json_term()).
+-spec get_ne_value(key(), object() | objects(), Default) -> json_term() | Default.
 get_ne_value(Key, JObj) ->
     get_ne_value(Key, JObj, 'undefined').
 
@@ -542,7 +540,7 @@ get_ne_value(Key, JObj, Default) ->
 %% Returns the value at Key
 %% @end
 %%--------------------------------------------------------------------
--spec find(key(), objects()) -> json_term() | 'undefined'.
+-spec find(key(), objects()) -> api(json_term()).
 -spec find(key(), objects(), Default) -> json_term() | Default.
 
 find(Key, Docs) ->
@@ -555,7 +553,7 @@ find(Key, [JObj|JObjs], Default) when is_list(JObjs) ->
         V -> V
     end.
 
--spec find_first_defined(key(), objects()) -> json_term() | 'undefined'.
+-spec find_first_defined(key(), objects()) -> api(json_term()).
 -spec find_first_defined(key(), objects(), Default) -> json_term() | Default.
 find_first_defined(Keys, Docs) ->
     find_first_defined(Keys, Docs, 'undefined').
@@ -586,7 +584,7 @@ find_value(Key, Value, [JObj|JObjs], Default) ->
         _Value -> find_value(Key, Value, JObjs, Default)
     end.
 
--spec get_first_defined(keys(), object()) -> 'undefined' | json_term().
+-spec get_first_defined(keys(), object()) -> api(json_term()).
 -spec get_first_defined(keys(), object(), Default) -> Default | json_term().
 get_first_defined(Keys, JObj) ->
     get_first_defined(Keys, JObj, 'undefined').
@@ -598,10 +596,8 @@ get_first_defined([H|T], JObj, Default) ->
         V -> V
     end.
 
--spec get_value(key(), object() | objects()) ->
-                       json_term() | 'undefined'.
--spec get_value(key(), object() | objects(), Default) ->
-                       json_term() | Default.
+-spec get_value(key(), object() | objects()) -> api(json_term()).
+-spec get_value(key(), object() | objects(), Default) -> json_term() | Default.
 get_value(Key, JObj) ->
     get_value(Key, JObj, 'undefined').
 
@@ -615,8 +611,7 @@ get_value([Key|Ks], L, Default) when is_list(L) ->
     end;
 get_value(K, Doc, Default) -> get_value1(K, Doc, Default).
 
--spec get_value1(key(), object() | objects(), Default) ->
-                        json_term() | Default.
+-spec get_value1(key(), object() | objects(), Default) -> json_term() | Default.
 get_value1([], JObj, _Default) ->
     JObj;
 get_value1(Key, JObj, Default) when not is_list(Key)->

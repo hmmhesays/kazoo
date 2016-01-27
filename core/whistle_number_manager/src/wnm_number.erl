@@ -837,7 +837,7 @@ record_to_json(#number{number_doc=JObj}=N) ->
               ],
     lists:foldl(fun record_to_json_fold/2, JObj, Updates).
 
--spec record_to_json_fold({wh_json:key(), 'undefined' | wh_json:json_term()}, wh_json:object()) ->
+-spec record_to_json_fold({wh_json:key(), api(wh_json:json_term())}, wh_json:object()) ->
                                  wh_json:object().
 record_to_json_fold({K, 'undefined'}, J) -> wh_json:delete_key(K, J);
 record_to_json_fold({K, V}, J) -> wh_json:set_value(K, V, J).

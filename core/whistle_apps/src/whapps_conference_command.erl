@@ -85,7 +85,7 @@ participant_energy(ParticipantId, EnergyLevel, Conference) ->
     send_command(Command, Conference).
 
 -spec kick(whapps_conference:conference()) -> 'ok'.
--spec kick(non_neg_integer() | 'undefined', whapps_conference:conference()) -> 'ok'.
+-spec kick(api(non_neg_integer()), whapps_conference:conference()) -> 'ok'.
 
 kick(Conference) ->
     kick('undefined', Conference).
@@ -113,7 +113,7 @@ mute_participant(ParticipantId, Conference) ->
     send_command(Command, Conference).
 
 -spec prompt(ne_binary(), whapps_conference:conference()) -> 'ok'.
--spec prompt(ne_binary(), non_neg_integer() | 'undefined', whapps_conference:conference()) -> 'ok'.
+-spec prompt(ne_binary(), api(non_neg_integer()), whapps_conference:conference()) -> 'ok'.
 
 prompt(Media, Conference) ->
     prompt(Media, 'undefined', Conference).
@@ -121,7 +121,7 @@ prompt(Media, ParticipantId, Conference) ->
     play(wh_media_util:get_prompt(Media, whapps_conference:call(Conference)), ParticipantId, Conference).
 
 -spec play_command(ne_binary()) -> wh_proplist().
--spec play_command(ne_binary(), non_neg_integer() | 'undefined') -> wh_proplist().
+-spec play_command(ne_binary(), api(non_neg_integer())) -> wh_proplist().
 
 play_command(Media) ->
     play_command(Media, 'undefined').
@@ -132,7 +132,7 @@ play_command(Media, ParticipantId) ->
     ].
 
 -spec play(ne_binary(), whapps_conference:conference()) -> 'ok'.
--spec play(ne_binary(), non_neg_integer() | 'undefined', whapps_conference:conference()) -> 'ok'.
+-spec play(ne_binary(), api(non_neg_integer()), whapps_conference:conference()) -> 'ok'.
 
 play(Media, Conference) ->
     play(Media, 'undefined', Conference).
@@ -165,8 +165,8 @@ relate_participants(ParticipantId, OtherParticipantId, Relationship, Conference)
     send_command(Command, Conference).
 
 -spec stop_play(whapps_conference:conference()) -> 'ok'.
--spec stop_play(non_neg_integer() | 'undefined', whapps_conference:conference()) -> 'ok'.
--spec stop_play(non_neg_integer() | 'undefined', api_binary(), whapps_conference:conference()) -> 'ok'.
+-spec stop_play(api(non_neg_integer()), whapps_conference:conference()) -> 'ok'.
+-spec stop_play(api(non_neg_integer()), api_binary(), whapps_conference:conference()) -> 'ok'.
 
 stop_play(Conference) ->
     stop_play('undefined', Conference).

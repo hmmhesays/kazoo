@@ -138,8 +138,7 @@ most_recent_statuses(AccountId, AgentId, Options) ->
 
     maybe_reduce_statuses(AgentId, receive_statuses([ETS, DB])).
 
--spec maybe_start_db_lookup(atom(), fun(), ne_binary(), api_binary(), list(), pid()) ->
-                                   pid_ref() | 'undefined'.
+-spec maybe_start_db_lookup(atom(), fun(), ne_binary(), api_binary(), list(), pid()) -> api(pid_ref()).
 maybe_start_db_lookup(F, Fun, AccountId, AgentId, Options, Self) ->
     case wh_cache:fetch_local(?ACDC_CACHE, db_fetch_key(F, AccountId, AgentId)) of
         {'ok', _} -> 'undefined';
@@ -149,8 +148,7 @@ maybe_start_db_lookup(F, Fun, AccountId, AgentId, Options, Self) ->
 
 db_fetch_key(F, AccountId, AgentId) -> {F, AccountId, AgentId}.
 
--spec maybe_reduce_statuses(api_binary(), wh_json:object()) ->
-                                   {'ok', wh_json:object()}.
+-spec maybe_reduce_statuses(api_binary(), wh_json:object()) -> {'ok', wh_json:object()}.
 maybe_reduce_statuses('undefined', Statuses) ->
     {'ok', wh_json:map(fun map_reduce_agent_statuses/2, Statuses)};
 maybe_reduce_statuses(_, Statuses) -> {'ok', Statuses}.
@@ -169,11 +167,9 @@ reduce_agent_statuses(_, Data, {T, _}=Acc) ->
         _:_ -> Acc
     end.
 
--type receive_info() :: [{pid(), reference()} | 'undefined'].
--spec receive_statuses(receive_info()) ->
-                              wh_json:object().
--spec receive_statuses(receive_info(), wh_json:object()) ->
-                              wh_json:object().
+-type receive_info() :: [api({pid(), reference()})].
+-spec receive_statuses(receive_info()) -> wh_json:object().
+-spec receive_statuses(receive_info(), wh_json:object()) -> wh_json:object().
 receive_statuses(Reqs) -> receive_statuses(Reqs, wh_json:new()).
 
 receive_statuses([], AccJObj) -> AccJObj;

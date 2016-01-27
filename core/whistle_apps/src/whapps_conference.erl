@@ -141,7 +141,7 @@ from_json(JObj, Conference) ->
       ,call = load_call(JObj, call(Conference))
      }.
 
--spec load_call(wh_json:object(), whapps_call:call() | 'undefined') -> whapps_call:call() | 'undefined'.
+-spec load_call(wh_json:object(), api(whapps_call:call())) -> api(whapps_call:call()).
 load_call(JObj, ConfCall) ->
     case wh_json:get_value(<<"Call">>, JObj) of
         'undefined' -> ConfCall;
@@ -532,7 +532,7 @@ cache(#whapps_conference{id=ConferenceId}=Conference, Expires) ->
 retrieve(ConferenceId) ->
     wh_cache:fetch_local(?WHAPPS_CALL_CACHE, {?MODULE, 'conference', ConferenceId}).
 
--spec call(whapps_conference:conference()) -> whapps_call:call() | 'undefined'.
+-spec call(whapps_conference:conference()) -> api(whapps_call:call()).
 call(#whapps_conference{call=Call}) -> Call.
 
 -spec set_call(whapps_call:call(), whapps_conference:conference()) -> whapps_conference:conference().

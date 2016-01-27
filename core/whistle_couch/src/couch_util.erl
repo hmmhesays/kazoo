@@ -91,9 +91,13 @@
 
 -type ddoc() :: ne_binary() | 'all_docs' | 'design_docs'.
 
--type db_classifications() :: 'account' | 'modb' | 'acdc' |
-                              'numbers' | 'aggregate' | 'system' |
-                              'deprecated' | 'undefined'.
+-type db_classifications() :: api('account' |
+                                  'modb' |
+                                  'acdc' |
+                                  'numbers' |
+                                  'aggregate' |
+                                  'system' |
+                                  'deprecated').
 
 -export_type([db_create_options/0
               ,couchbeam_errors/0

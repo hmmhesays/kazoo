@@ -64,11 +64,10 @@
 
 -type direction() :: 'ascending' | 'descending'.
 
--type startkey() :: wh_json:json_term() | 'undefined'.
+-type startkey() :: api(wh_json:json_term()).
 
--type startkey_fun() :: 'undefined' |
-                        fun((cb_context:context()) -> startkey()) |
-                        fun((wh_proplist(), cb_context:context()) -> startkey()).
+-type startkey_fun() :: api(fun((cb_context:context()) -> startkey()) |
+                            fun((wh_proplist(), cb_context:context()) -> startkey())).
 
 -type view_options() :: couch_util:view_options() |
                         [{'databases', ne_binaries()} |
@@ -268,7 +267,7 @@ patch_and_validate(Id, Context, ValidateFun) ->
                        cb_context:context().
 -spec load_view(ne_binary() | 'all_docs', wh_proplist(), cb_context:context(), wh_json:json_term(), pos_integer()) ->
                        cb_context:context().
--spec load_view(ne_binary() | 'all_docs', wh_proplist(), cb_context:context(), wh_json:json_term(), pos_integer(), filter_fun() | 'undefined') ->
+-spec load_view(ne_binary() | 'all_docs', wh_proplist(), cb_context:context(), wh_json:json_term(), pos_integer(), api(filter_fun())) ->
                        cb_context:context().
 load_view(View, Options, Context) ->
     load_view(View, Options, Context
@@ -397,8 +396,8 @@ limit_by_page_size(Context, PageSize) ->
             'undefined'
     end.
 
--spec start_key(cb_context:context()) -> wh_json:json_term() | 'undefined'.
--spec start_key(wh_proplist(), cb_context:context()) -> wh_json:json_term() | 'undefined'.
+-spec start_key(cb_context:context()) -> api(wh_json:json_term()).
+-spec start_key(wh_proplist(), cb_context:context()) -> api(wh_json:json_term()).
 start_key(Context) ->
     cb_context:req_value(Context, <<"start_key">>).
 
@@ -409,11 +408,11 @@ start_key(Options, Context) ->
         Fun when is_function(Fun, 1) -> Fun(Context)
     end.
 
--spec start_key_fun(wh_proplist(), cb_context:context()) -> wh_json:json_term() | 'undefined'.
+-spec start_key_fun(wh_proplist(), cb_context:context()) -> api(wh_json:json_term()).
 start_key_fun(Options, Context) ->
     case props:get_value('startkey', Options) of
         'undefined' ->
-            lager:debug("getting start_key from request: ~p", [ cb_context:req_value(Context, <<"start_key">>)]),
+            lager:debug("getting start_key from request: ~p", [cb_context:req_value(Context, <<"start_key">>)]),
             cb_context:req_value(Context, <<"start_key">>);
         StartKey ->
             lager:debug("getting start_key from options: ~p", [StartKey]),
@@ -733,7 +732,7 @@ delete_attachment(DocId, AName, Context) ->
 %% @end
 %%--------------------------------------------------------------------
 -spec rev_to_etag(wh_json:object() | wh_json:objects() | ne_binary()) ->
-                         'undefined' | 'automatic' | string().
+                         api('automatic' | string()).
 rev_to_etag([_|_])-> 'automatic';
 rev_to_etag([]) -> 'undefined';
 rev_to_etag(Rev) when is_binary(Rev) -> wh_util:to_list(Rev);
@@ -749,7 +748,7 @@ rev_to_etag(JObj) ->
 %%
 %% @end
 %%--------------------------------------------------------------------
--spec update_pagination_envelope_params(cb_context:context(), any(), non_neg_integer() | 'undefined') ->
+-spec update_pagination_envelope_params(cb_context:context(), any(), api(non_neg_integer())) ->
                                                cb_context:context().
 update_pagination_envelope_params(Context, StartKey, PageSize) ->
     update_pagination_envelope_params(Context
@@ -759,7 +758,7 @@ update_pagination_envelope_params(Context, StartKey, PageSize) ->
                                       ,cb_context:should_paginate(Context)
                                      ).
 
--spec update_pagination_envelope_params(cb_context:context(), any(), non_neg_integer() | 'undefined', api_binary()) ->
+-spec update_pagination_envelope_params(cb_context:context(), any(), api(non_neg_integer()), api_binary()) ->
                                                cb_context:context().
 update_pagination_envelope_params(Context, StartKey, PageSize, NextStartKey) ->
     update_pagination_envelope_params(Context
@@ -769,7 +768,7 @@ update_pagination_envelope_params(Context, StartKey, PageSize, NextStartKey) ->
                                       ,cb_context:should_paginate(Context)
                                      ).
 
--spec update_pagination_envelope_params(cb_context:context(), any(), non_neg_integer() | 'undefined', api_binary(), boolean()) ->
+-spec update_pagination_envelope_params(cb_context:context(), any(), api(non_neg_integer()), api_binary(), boolean()) ->
                                                cb_context:context().
 update_pagination_envelope_params(Context, _StartKey, _PageSize, _NextStartKey, 'false') ->
     lager:debug("pagination disabled, removing resp envelope keys"),
@@ -796,7 +795,7 @@ update_pagination_envelope_params(Context, StartKey, PageSize, NextStartKey, 'tr
                                    )
                                 ).
 
--spec handle_couch_mgr_pagination_success(wh_json:objects(), pos_integer() | 'undefined', ne_binary(), load_view_params()) ->
+-spec handle_couch_mgr_pagination_success(wh_json:objects(), api(pos_integer()), ne_binary(), load_view_params()) ->
                                                  cb_context:context().
 handle_couch_mgr_pagination_success(JObjs
                                     ,_PageSize
@@ -897,9 +896,9 @@ handle_couch_mgr_pagination_success([_|_]=JObjs
 
 -type filter_fun() :: fun((wh_json:object(), wh_json:objects()) -> wh_json:objects()).
 
--spec apply_filter('undefined' | filter_fun(), wh_json:objects(), cb_context:context(), direction()) ->
+-spec apply_filter(api(filter_fun()), wh_json:objects(), cb_context:context(), direction()) ->
                           wh_json:objects().
--spec apply_filter('undefined' | filter_fun(), wh_json:objects(), cb_context:context(), direction(), boolean()) ->
+-spec apply_filter(api(filter_fun()), wh_json:objects(), cb_context:context(), direction(), boolean()) ->
                           wh_json:objects().
 apply_filter(FilterFun, JObjs, Context, Direction) ->
     apply_filter(FilterFun, JObjs, Context, Direction, has_qs_filter(Context)).
@@ -921,7 +920,7 @@ apply_filter(FilterFun, JObjs, Context, Direction, HasQSFilter) ->
         'descending' -> lists:reverse(Filtered)
     end.
 
--spec maybe_apply_custom_filter('undefined' | filter_fun(), wh_json:objects()) -> wh_json:objects().
+-spec maybe_apply_custom_filter(api(filter_fun()), wh_json:objects()) -> wh_json:objects().
 maybe_apply_custom_filter('undefined', JObjs) -> JObjs;
 maybe_apply_custom_filter(FilterFun, JObjs) ->
     [JObj

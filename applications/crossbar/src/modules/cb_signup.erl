@@ -506,7 +506,7 @@ template_props(Context) ->
 %% accounts and completed signups
 %% @end
 %%--------------------------------------------------------------------
--spec is_unique_realm(binary() | 'undefined') -> boolean().
+-spec is_unique_realm(api(binary())) -> boolean().
 is_unique_realm('undefined') -> 'false';
 is_unique_realm(<<>>) -> 'false';
 is_unique_realm(Realm) ->
@@ -594,8 +594,7 @@ get_configs() ->
                          'cb_signup_email_plain' |
                          'cb_signup_email_subject' |
                          'cb_signup_register_cmd'.
--spec compile_template(string() | api_binary(), template_name()) ->
-                              'undefined' | template_name().
+-spec compile_template(string() | api_binary(), template_name()) -> api(template_name()).
 compile_template('undefined', _) -> 'undefined';
 compile_template(Template, Name) when not is_binary(Template) ->
     Path = case string:substr(Template, 1, 1) of
@@ -616,8 +615,7 @@ compile_template(Template, Name) ->
 %% Compiles template string or path, normalizing the return
 %% @end
 %%--------------------------------------------------------------------
--spec do_compile_template(nonempty_string() | ne_binary(), template_name()) ->
-                                 'undefined' | template_name().
+-spec do_compile_template(nonempty_string() | ne_binary(), template_name()) -> api(template_name()).
 do_compile_template(Template, Name) ->
     case erlydtl:compile_template(Template, Name, [{'out_dir', 'false'}]) of
         {'ok', Name} ->

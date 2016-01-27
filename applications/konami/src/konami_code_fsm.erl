@@ -38,7 +38,7 @@
                 ,patterns :: api_object()
                 ,binding_digit = konami_config:binding_digit() :: ne_binary()
                 ,digit_timeout = konami_config:timeout() :: pos_integer()
-                ,call :: whapps_call:call() | 'undefined'
+                ,call :: api(whapps_call:call())
 
                 ,listen_on = 'a' :: listen_on()
 

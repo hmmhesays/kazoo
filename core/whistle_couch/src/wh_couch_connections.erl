@@ -162,7 +162,7 @@ get_creds() ->
     {[Creds], _} = ets:select(?MODULE, MatchSpec, 1),
     Creds.
 
--spec get_server() -> #server{} | 'undefined'.
+-spec get_server() -> api(#server{}).
 get_server() ->
     get_server('local').
 

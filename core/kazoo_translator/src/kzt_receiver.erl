@@ -182,7 +182,7 @@ collect_timeout(Call, Timeout) ->
 -spec say_loop(whapps_call:call(), ne_binary(), ne_binary(), ne_binary(), ne_binary(), wh_timeout()) ->
                       {'ok', whapps_call:call()} |
                       {'error', _, whapps_call:call()}.
--spec say_loop(whapps_call:call(), ne_binary(), ne_binary(), ne_binary(), list() | 'undefined', ne_binary(), wh_timeout()) ->
+-spec say_loop(whapps_call:call(), ne_binary(), ne_binary(), ne_binary(), api(list()), ne_binary(), wh_timeout()) ->
                       {'ok', whapps_call:call()} |
                       {'error', _, whapps_call:call()}.
 say_loop(Call, SayMe, Voice, Lang, Engine, N) ->
@@ -208,7 +208,7 @@ say_loop(Call, SayMe, Voice, Lang, Terminators, Engine, N) ->
 -spec play_loop(whapps_call:call(), binary(), wh_timeout()) ->
                        {'ok', whapps_call:call()} |
                        {'error', _, whapps_call:call()}.
--spec play_loop(whapps_call:call(), binary(), list() | 'undefined', wh_timeout()) ->
+-spec play_loop(whapps_call:call(), binary(), api(list()), wh_timeout()) ->
                        {'ok', whapps_call:call()} |
                        {'error', _, whapps_call:call()}.
 play_loop(Call, PlayMe, N) ->

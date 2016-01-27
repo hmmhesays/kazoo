@@ -262,7 +262,7 @@ add_participant_to_conference(JObj, Conference, Call, Srv) ->
             conf_participant:join_remote(Srv, JObj)
     end.
 
--spec discovery_failed(whapps_call:call(), pid() | 'undefined') -> 'ok'.
+-spec discovery_failed(whapps_call:call(), api(pid())) -> 'ok'.
 discovery_failed(Call, _) -> whapps_call_command:hangup(Call).
 
 -spec validate_conference_id(api_binary(), whapps_call:call()) ->

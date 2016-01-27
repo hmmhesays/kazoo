@@ -90,14 +90,14 @@ get_props() ->
      || Resource <- sort_resources(get())
     ].
 
--spec get_props(ne_binary()) -> wh_proplist() | 'undefined'.
+-spec get_props(ne_binary()) -> api(wh_proplist()).
 get_props(ResourceId) ->
     case get_resource(ResourceId) of
         'undefined' -> 'undefined';
         Resource -> resource_to_props(Resource)
     end.
 
--spec get_props(ne_binary(), api_binary()) -> wh_proplist() | 'undefined'.
+-spec get_props(ne_binary(), api_binary()) -> api(wh_proplist()).
 get_props(_ResourceId, 'undefined') -> 'undefined';
 get_props(ResourceId, AccountId) ->
     case get_local_resource(ResourceId, AccountId) of
@@ -632,7 +632,7 @@ get(AccountId) ->
         {'error', 'not_found'} -> fetch_local_resources(AccountId)
     end.
 
--spec get_resource(ne_binary()) -> resource() | 'undefined'.
+-spec get_resource(ne_binary()) -> api(resource()).
 get_resource(ResourceId) ->
     case get('undefined') of
         [] -> 'undefined';
@@ -646,7 +646,7 @@ get_resource(ResourceId, [#resrc{}|Resources]) ->
 get_resource(_ResourceId, []) ->
     'undefined'.
 
--spec get_local_resource(ne_binary(), ne_binary()) -> resource() | 'undefined'.
+-spec get_local_resource(ne_binary(), ne_binary()) -> api(resource()).
 get_local_resource(ResourceId, AccountId) ->
     case get(AccountId) of
         [] -> 'undefined';

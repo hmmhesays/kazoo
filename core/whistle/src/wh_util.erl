@@ -1021,7 +1021,7 @@ to_lower_binary('undefined') -> 'undefined';
 to_lower_binary(Bin) when is_binary(Bin) -> << <<(to_lower_char(B))>> || <<B>> <= Bin>>;
 to_lower_binary(Else) -> to_lower_binary(to_binary(Else)).
 
--spec to_lower_string(any()) -> 'undefined' | list().
+-spec to_lower_string(any()) -> api(list()).
 to_lower_string('undefined') -> 'undefined';
 to_lower_string(L) when is_list(L) ->
     [to_lower_char(C) || C <- L];
@@ -1046,7 +1046,7 @@ to_upper_binary('undefined') -> 'undefined';
 to_upper_binary(Bin) when is_binary(Bin) -> << <<(to_upper_char(B))>> || <<B>> <= Bin>>;
 to_upper_binary(Else) -> to_upper_binary(to_binary(Else)).
 
--spec to_upper_string(any()) -> 'undefined' | list().
+-spec to_upper_string(any()) -> api(list()).
 to_upper_string('undefined') -> 'undefined';
 to_upper_string(L) when is_list(L) -> [to_upper_char(C) || C <- L];
 to_upper_string(Else) -> to_upper_string(to_list(Else)).

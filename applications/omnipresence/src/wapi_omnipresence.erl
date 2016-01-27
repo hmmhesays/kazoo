@@ -317,7 +317,7 @@ bind_q(Queue, [_|Restrict], Props) ->
 bind_q(_, [], _) -> 'ok'.
 
 -spec unbind_q(ne_binary(), wh_proplist()) -> 'ok'.
--spec unbind_q(ne_binary(), atoms() | 'undefined', wh_proplist()) -> 'ok'.
+-spec unbind_q(ne_binary(), api(atoms()), wh_proplist()) -> 'ok'.
 unbind_q(Queue, Props) ->
     unbind_q(Queue, props:get_value('restrict_to', Props), Props).
 

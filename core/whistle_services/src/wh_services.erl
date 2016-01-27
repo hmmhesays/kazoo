@@ -381,7 +381,7 @@ delete(Account) ->
 %%
 %% @end
 %%--------------------------------------------------------------------
--spec set_billing_id(api_binary(), ne_binary() | services()) -> 'undefined' | services().
+-spec set_billing_id(api_binary(), ne_binary() | services()) -> api(services()).
 set_billing_id('undefined', _) -> 'undefined';
 set_billing_id(BillingId, #wh_services{billing_id=BillingId}) ->
     'undefined';

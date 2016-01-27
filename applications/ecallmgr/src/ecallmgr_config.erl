@@ -67,7 +67,7 @@ flush_default() ->
 flush_default(Key) ->
     flush(Key, <<"default">>).
 
--spec get(wh_json:key()) -> wh_json:json_term() | 'undefined'.
+-spec get(wh_json:key()) -> api(wh_json:json_term()).
 -spec get(wh_json:key(), Default) -> wh_json:json_term() | Default.
 -spec get(wh_json:key(), Default, wh_json:key() | atom()) -> wh_json:json_term() | Default.
 
@@ -90,7 +90,7 @@ get(Key, Default, Node) ->
             fetch(Key, Default, Node)
     end.
 
--spec get_default(wh_json:key()) -> wh_json:json_term() | 'undefined'.
+-spec get_default(wh_json:key()) -> api(wh_json:json_term()).
 -spec get_default(wh_json:key(), Default) -> wh_json:json_term() | Default.
 get_default(Key) ->
     get(Key, 'undefined', <<"default">>).
@@ -151,7 +151,7 @@ is_true(Key, Default, Node) ->
         N -> wh_util:is_true(N)
     end.
 
--spec fetch(wh_json:key()) -> wh_json:json_term() | 'undefined'.
+-spec fetch(wh_json:key()) -> api(wh_json:json_term()).
 -spec fetch(wh_json:key(), Default) -> wh_json:json_term() | Default.
 -spec fetch(wh_json:key(), Default, wh_json:key() | atom()) -> wh_json:json_term() | Default.
 -spec fetch(wh_json:key(), Default, wh_json:key() | atom(), pos_integer()) -> wh_json:json_term() | Default.

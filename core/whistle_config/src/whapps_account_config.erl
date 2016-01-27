@@ -87,17 +87,14 @@ flush(Account, Config) ->
     AccountDb = wh_util:format_account_id(Account, 'encoded'),
     couch_mgr:flush_cache_doc(AccountDb, config_doc_id(Config)).
 
--spec get(account(), ne_binary(), wh_json:key()) ->
-                 wh_json:json_term() | 'undefined'.
--spec get(account(), ne_binary(), wh_json:key(), Default) ->
-                 wh_json:json_term() | Default.
+-spec get(account(), ne_binary(), wh_json:key()) -> api(wh_json:json_term()).
+-spec get(account(), ne_binary(), wh_json:key(), Default) -> wh_json:json_term() | Default.
 get(Account, Config, Key) ->
     get(Account, Config, Key, 'undefined').
 get(Account, Config, Key, Default) ->
     wh_json:get_value(Key, get(Account, Config), Default).
 
--spec set(account(), ne_binary(), wh_json:key(), wh_json:json_term()) ->
-                 wh_json:object().
+-spec set(account(), ne_binary(), wh_json:key(), wh_json:json_term()) -> wh_json:object().
 set(Account, Config, Key, Value) ->
     JObj = wh_json:set_value(Key, Value, ?MODULE:get(Account, Config)),
 

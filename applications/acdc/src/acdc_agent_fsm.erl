@@ -1354,7 +1354,7 @@ start_sync_timer(P) ->
 start_resync_timer() ->
     gen_fsm:start_timer(?RESYNC_RESPONSE_TIMEOUT, ?RESYNC_RESPONSE_MESSAGE).
 
--spec start_pause_timer(pos_integer()) -> reference() | 'undefined'.
+-spec start_pause_timer(pos_integer()) -> api_reference().
 start_pause_timer('undefined') -> start_pause_timer(1);
 start_pause_timer(0) -> 'undefined';
 start_pause_timer(Timeout) ->
@@ -1425,8 +1425,7 @@ clear_call(#state{fsm_call_id=FSMemberCallId
                 ,outbound_call_id = 'undefined'
                }.
 
--spec current_call(whapps_call:call() | 'undefined', atom(), ne_binary(), 'undefined' | wh_now()) ->
-                          api_object().
+-spec current_call(api(whapps_call:call()), atom(), ne_binary(), api(wh_now())) -> api_object().
 current_call('undefined', _, _, _) -> 'undefined';
 current_call(Call, AgentState, QueueId, Start) ->
     wh_json:from_list([{<<"call_id">>, whapps_call:call_id(Call)}
@@ -1439,7 +1438,7 @@ current_call(Call, AgentState, QueueId, Start) ->
                        ,{<<"queue_id">>, QueueId}
                       ]).
 
--spec elapsed('undefined' | wh_now()) -> api_integer().
+-spec elapsed(api(wh_now())) -> api_integer().
 elapsed('undefined') -> 'undefined';
 elapsed(Start) -> wh_util:elapsed_s(Start).
 
@@ -1471,8 +1470,8 @@ hangup_call(#state{agent_listener=AgentListener
     maybe_notify(Ns, ?NOTIFY_HANGUP, State),
     wrapup_timer(State).
 
--spec maybe_stop_timer(reference() | 'undefined') -> 'ok'.
--spec maybe_stop_timer(reference() | 'undefined', boolean()) -> 'ok'.
+-spec maybe_stop_timer(api(reference())) -> 'ok'.
+-spec maybe_stop_timer(api(reference()), boolean()) -> 'ok'.
 maybe_stop_timer('undefined') -> 'ok';
 maybe_stop_timer(ConnRef) when is_reference(ConnRef) ->
     _ = gen_fsm:cancel_timer(ConnRef),

@@ -1322,8 +1322,7 @@ play_bridged(UUID, JObj, F) ->
 %% @doc
 %% @end
 %%--------------------------------------------------------------------
--spec get_terminators(api_binary() | ne_binaries() | wh_json:object()) ->
-                             {ne_binary(), ne_binary()} | 'undefined'.
+-spec get_terminators(api_binary() | ne_binaries() | wh_json:object()) -> api({ne_binary(), ne_binary()}).
 get_terminators('undefined') -> 'undefined';
 get_terminators(Ts) when is_binary(Ts) -> get_terminators([Ts]);
 get_terminators([_|_]=Ts) ->

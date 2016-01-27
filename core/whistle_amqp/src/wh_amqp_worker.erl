@@ -111,7 +111,7 @@
                 ,defer_response :: api_object()
                 ,queue :: api_binary()
                 ,confirms = 'false' :: boolean()
-                ,flow = 'undefined' :: boolean() | 'undefined'
+                ,flow = 'undefined' :: api(boolean())
                 ,acc = 'undefined' :: any()
                }).
 

@@ -165,12 +165,8 @@ get_sip_headers(OffnetReq) ->
 maybe_remove_diversions(JObj) ->
     wh_json:delete_key(<<"Diversions">>, JObj).
 
--spec get_diversions(wh_json:object()) ->
-                            'undefined' |
-                            ne_binaries().
--spec get_diversions(api_binary(), ne_binaries()) ->
-                            'undefined' |
-                            ne_binaries().
+-spec get_diversions(wh_json:object()) -> api(ne_binaries()).
+-spec get_diversions(api_binary(), ne_binaries()) -> api(ne_binaries()).
 
 get_diversions(JObj) ->
     Inception = wh_json:get_value(<<"Inception">>, JObj),
@@ -268,7 +264,7 @@ endpoint_props(Endpoint, AccountId) ->
             empty_list_on_undefined(stepswitch_resources:get_props(ResourceId, AccountId))
     end.
 
--spec empty_list_on_undefined(wh_proplist() | 'undefined') -> wh_proplist().
+-spec empty_list_on_undefined(api(wh_proplist())) -> wh_proplist().
 empty_list_on_undefined('undefined') -> [];
 empty_list_on_undefined(L) -> L.
 

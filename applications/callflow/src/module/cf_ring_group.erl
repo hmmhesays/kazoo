@@ -306,7 +306,7 @@ random_integer(I) ->
 repeats(Data) ->
     max(1, wh_json:get_integer_value(<<"repeats">>, Data, 1)).
 
--spec group_weight(wh_json:object()) -> group_weight() | 'undefined'.
+-spec group_weight(wh_json:object()) -> api(group_weight()).
 -spec group_weight(wh_json:object(), Default) -> group_weight() | Default.
 group_weight(Endpoint) ->
     group_weight(Endpoint, 'undefined').

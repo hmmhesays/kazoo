@@ -147,7 +147,7 @@ fetch_master_meta(TemplateId) ->
 %% @doc
 %% @end
 %%--------------------------------------------------------------------
--type fetch_return() :: {ne_binary(), binary()} | 'undefined'.
+-type fetch_return() :: api({ne_binary(), binary()}).
 
 -spec fetch_attachment(ne_binary(), ne_binary(), wh_json:object() | fetch_return()) ->
                               wh_proplist() | fetch_return().

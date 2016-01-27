@@ -241,8 +241,8 @@ default_application_timeout() ->
 %%--------------------------------------------------------------------
 -spec presence(ne_binary(), ne_binary() | whapps_call:call()) -> 'ok'.
 -spec presence(ne_binary(), ne_binary(), api_binary() | whapps_call:call()) -> 'ok'.
--spec presence(ne_binary(), ne_binary() , api_binary() , whapps_call:call() | 'undefined') -> 'ok'.
--spec presence(ne_binary(), ne_binary() , api_binary() , api_binary(), whapps_call:call() | 'undefined') -> 'ok'.
+-spec presence(ne_binary(), ne_binary() , api_binary() , api(whapps_call:call())) -> 'ok'.
+-spec presence(ne_binary(), ne_binary() , api_binary() , api_binary(), api(whapps_call:call())) -> 'ok'.
 presence(State, <<_/binary>> = PresenceId) ->
     presence(State, PresenceId, 'undefined');
 presence(State, Call) ->
@@ -2403,7 +2403,7 @@ wait_for_dtmf(Timeout) ->
 %%--------------------------------------------------------------------
 -spec wait_for_bridge(wh_timeout(), whapps_call:call()) ->
                              whapps_api_bridge_return().
--spec wait_for_bridge(wh_timeout(), 'undefined' | fun((wh_json:object()) -> any()), whapps_call:call()) ->
+-spec wait_for_bridge(wh_timeout(), api(fun((wh_json:object()) -> any())), whapps_call:call()) ->
                              whapps_api_bridge_return().
 wait_for_bridge(Timeout, Call) ->
     wait_for_bridge(Timeout, 'undefined', Call).

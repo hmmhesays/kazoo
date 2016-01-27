@@ -152,7 +152,7 @@
                       ,language :: api_binary()                     %% Language of the call to use
                       ,app_name = <<"whapps_call">> :: ne_binary()        %% The application name used during whapps_call_command
                       ,app_version = <<"1.0.0">> :: ne_binary()           %% The application version used during whapps_call_command
-                      ,custom_publish_fun :: whapps_custom_publish() | 'undefined'     %% A custom command used to publish whapps_call_command
+                      ,custom_publish_fun :: api(whapps_custom_publish())     %% A custom command used to publish whapps_call_command
                       ,ccvs = wh_json:new() :: wh_json:object()      %% Any custom channel vars that where provided with the route request
                       ,sip_headers = wh_json:new() :: wh_json:object()                   %% Custom SIP Headers
                       ,kvs = orddict:new() :: orddict:orddict()           %% allows callflows to set values that propogate to children
@@ -960,7 +960,7 @@ set_custom_publish_function(Fun, #whapps_call{}=Call) when is_function(Fun, 2) -
 clear_custom_publish_function(#whapps_call{}=Call) ->
     Call#whapps_call{custom_publish_fun='undefined'}.
 
--spec custom_publish_function(call()) -> 'undefined' | whapps_custom_publish().
+-spec custom_publish_function(call()) -> api(whapps_custom_publish()).
 custom_publish_function(#whapps_call{custom_publish_fun=Fun}) -> Fun.
 
 -spec kvs_append(any(), any(), call()) -> call().

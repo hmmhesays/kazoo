@@ -265,7 +265,7 @@ config(Srv) -> gen_listener:call(Srv, 'config').
 refresh_config(_, 'undefined') -> 'ok';
 refresh_config(Srv, Qs) -> gen_listener:cast(Srv, {'refresh_config', Qs}).
 
--spec agent_info(pid(), wh_json:key()) -> wh_json:json_term() | 'undefined'.
+-spec agent_info(pid(), wh_json:key()) -> api(wh_json:json_term()).
 agent_info(Srv, Field) -> gen_listener:call(Srv, {'agent_info', Field}).
 
 send_status_resume(Srv) ->
@@ -891,7 +891,7 @@ is_valid_queue(Q, Qs) -> lists:member(Q, Qs).
 
 -spec send_member_connect_resp(wh_json:object(), ne_binary()
                                ,ne_binary(), ne_binary()
-                               , wh_now() | 'undefined'
+                               ,api(wh_now())
                               ) -> 'ok'.
 send_member_connect_resp(JObj, MyQ, AgentId, MyId, LastConn) ->
     Queue = wh_json:get_value(<<"Server-ID">>, JObj),
@@ -974,7 +974,7 @@ send_status_update(AcctId, AgentId, 'resume') ->
     wapi_acdc_agent:publish_resume(Update).
 
 
--spec idle_time('undefined' | wh_now()) -> api_integer().
+-spec idle_time(api(wh_now())) -> api_integer().
 idle_time('undefined') -> 'undefined';
 idle_time(T) -> wh_util:elapsed_s(T).
 

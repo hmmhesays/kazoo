@@ -146,10 +146,10 @@ process_xml_content_tag(Prefix, Quantity, #xmlElement{name='content'
             process_xml_numbers(Prefix, Quantity, wnm_vitelity_util:xml_resp_numbers(Els))
     end.
 
--spec process_xml_numbers(ne_binary(), pos_integer(), 'undefined' | xml_el()) ->
+-spec process_xml_numbers(ne_binary(), pos_integer(), api(xml_el())) ->
                                  {'ok', wh_json:object()} |
                                  {'error', any()}.
--spec process_xml_numbers(ne_binary(), pos_integer(), 'undefined' | xml_els(), wh_proplist()) ->
+-spec process_xml_numbers(ne_binary(), pos_integer(), api(xml_els()), wh_proplist()) ->
                                  {'ok', wh_json:object()} |
                                  {'error', any()}.
 process_xml_numbers(_Prefix, _Quantity, 'undefined') ->

@@ -22,7 +22,7 @@
 -type cf_api_bridge_return() :: {'error', 'timeout' | wh_json:object()} |
                                 {'fail', wh_json:object()} |
                                 {'ok', wh_json:object()}.
--type cf_api_binary() :: binary() | 'undefined'.
+-type cf_api_binary() :: api(binary()).
 
 -define(APP_NAME, <<"callflow">>).
 -define(APP_VERSION, <<"4.0.0">> ).

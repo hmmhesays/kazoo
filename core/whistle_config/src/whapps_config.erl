@@ -179,9 +179,9 @@ get_is_true(Category, Key, Default, Node) ->
 %% get a configuration key for a given category and cast it as a is_true
 %% @end
 %%-----------------------------------------------------------------------------
--spec get_non_empty(config_category(), config_key()) -> _ | 'undefined'.
--spec get_non_empty(config_category(), config_key(), Default) -> _ | Default.
--spec get_non_empty(config_category(), config_key(), Default, ne_binary()) -> _ | Default.
+-spec get_non_empty(config_category(), config_key()) -> api(any()).
+-spec get_non_empty(config_category(), config_key(), Default) -> any() | Default.
+-spec get_non_empty(config_category(), config_key(), Default, ne_binary()) -> any() | Default.
 get_non_empty(Category, Key) ->
     get_non_empty(Category, Key, 'undefined').
 
@@ -218,7 +218,7 @@ get_ne_binary(Category, Key, Default, Node) ->
 %% node but if there is not then use the default value.
 %% @end
 %%-----------------------------------------------------------------------------
--spec get(config_category(), config_key()) -> any() | 'undefined'.
+-spec get(config_category(), config_key()) -> api(any()).
 -spec get(config_category(), config_key(), Default) -> any() | Default.
 -spec get(config_category(), config_key(), Default, ne_binary() | atom()) -> any() | Default.
 

@@ -176,7 +176,7 @@ create_admin_connection(Props) ->
                ],
     lists:foldl(fun(F, C) -> F(C) end, #wh_couch_connection{id = 2}, Routines).
 
--spec import_config('undefined' | tuple(), couch_connection()) -> couch_connection().
+-spec import_config(api(tuple()), couch_connection()) -> couch_connection().
 import_config({Host}, Connection) ->
     wh_couch_connection:config(Host, Connection);
 import_config({Host, Port}, Connection) ->

@@ -1010,7 +1010,7 @@ get_transfer_history(Props) ->
         History -> wh_json:from_list(History)
     end.
 
--spec create_trnsf_history_object(list()) -> {ne_binary(), wh_json:object()} | 'undefined'.
+-spec create_trnsf_history_object(list()) -> api({ne_binary(), wh_json:object()}).
 create_trnsf_history_object([Epoch, CallId, <<"att_xfer">>, Props]) ->
     [Transferee, Transferer] = binary:split(Props, <<"/">>),
     Trans = [{<<"Call-ID">>, CallId}

@@ -18,8 +18,7 @@
                  'amount_undefined' |
                  'limit_undefined' |
                  'balance_above_threshold' |
-                 'undefined' |
-                 atom().
+                 api(atom()).
 
 
 %%--------------------------------------------------------------------

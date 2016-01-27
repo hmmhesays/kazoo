@@ -3,14 +3,14 @@
 -export([test/1]).
 
 -define(DEFAULT_HEADERS, [<<"Server-ID">>, <<"Event-Category">>, <<"Event-Name">>
-			      , <<"App-Name">>, <<"App-Version">>, <<"Raw-Headers">>, <<"Destination-Server">>
-			      , <<"Geo-Location">>, <<"Access-Group">>
-			      , <<"Tenant-ID">>]).
+                         , <<"App-Name">>, <<"App-Version">>, <<"Raw-Headers">>, <<"Destination-Server">>
+                         , <<"Geo-Location">>, <<"Access-Group">>
+                         , <<"Tenant-ID">>]).
 
 test(Times) ->
     Props = [get_prop() || _ <- lists:seq(1, Times)],
-    {ElapsedOne, _} = timer:tc(fun() -> [ try_one(Prop) || Prop <- Props] end, []),
-    {ElapsedTwo, _} = timer:tc(fun() -> [ try_two(Prop) || Prop <- Props] end, []),
+    {ElapsedOne, _} = timer:tc(fun() -> [try_one(Prop) || Prop <- Props] end, []),
+    {ElapsedTwo, _} = timer:tc(fun() -> [try_two(Prop) || Prop <- Props] end, []),
     io:format("Took One: ~b ms and Two: ~b ms~n", [ElapsedOne div Times, ElapsedTwo div Times]).
 
 try_one(Prop) ->

@@ -508,7 +508,7 @@ try_channel_resp(FetchId, Node, Props) ->
             channel_not_found(Node, FetchId)
     end.
 
--spec fetch_channel(ne_binary()) -> wh_proplist() | 'undefined'.
+-spec fetch_channel(ne_binary()) -> api(wh_proplist()).
 fetch_channel(UUID) ->
     case fetch(UUID, 'proplist') of
         {'error', 'not_found'} -> fetch_remote(UUID);

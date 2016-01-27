@@ -111,7 +111,7 @@
           ,current_job_pid :: pid()
           ,current_job_ref :: reference()
           ,current_job_heuristic = ?HEUR_NONE :: compactor_heuristic()
-          ,current_job_start :: wh_now() | 'undefined'
+          ,current_job_start :: api(wh_now())
          }).
 
 %%%===================================================================
@@ -1639,7 +1639,7 @@ should_compact(Conn, Encoded, ?HEUR_RATIO) ->
 
 -spec get_db_disk_and_data(server(), ne_binary()) ->
                                   {pos_integer(), pos_integer()} |
-                                  'undefined' | 'not_found'.
+                                  api('not_found').
 get_db_disk_and_data(Conn, Encoded) ->
     get_db_disk_and_data(Conn, Encoded, 1).
 get_db_disk_and_data(_Conn, _Encoded, N) when N >= 3 ->

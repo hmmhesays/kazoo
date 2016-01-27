@@ -322,7 +322,7 @@ set_metadata(BTTransaction, Transaction) ->
     wh_transaction:set_metadata(BTTransaction, Transaction).
 
 -spec set_reason(wh_json:object(), wh_transaction:transaction()) -> wh_transaction:transaction().
--spec set_reason(wh_json:object(), wh_transaction:transaction(), pos_integer() | 'undefined') -> wh_transaction:transaction().
+-spec set_reason(wh_json:object(), wh_transaction:transaction(), api(pos_integer())) -> wh_transaction:transaction().
 set_reason(BTTransaction, Transaction) ->
     Code = wh_json:get_integer_value(<<"purchase_order">>, BTTransaction),
     set_reason(BTTransaction, Transaction, Code).
@@ -596,8 +596,7 @@ update_subscriptions(PlanId, Subscription, #wh_service_updates{bt_subscriptions=
 %%
 %% @end
 %%--------------------------------------------------------------------
--spec fetch_bt_customer(ne_binary(), boolean()) ->
-                               'undefined' | braintree_customer:customer().
+-spec fetch_bt_customer(ne_binary(), boolean()) -> api(braintree_customer:customer()).
 fetch_bt_customer(AccountId, NewItems) ->
     lager:debug("requesting braintree customer ~s", [AccountId]),
     try braintree_customer:find(AccountId) of

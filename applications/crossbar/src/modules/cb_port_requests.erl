@@ -1592,7 +1592,7 @@ generate_loa_from_template(Context, TemplateData, ResellerId, Carrier) ->
              )
     end.
 
--spec create_qr_code(api_binary(), api_binary()) -> wh_proplist() | 'undefined'.
+-spec create_qr_code(api_binary(), api_binary()) -> api(wh_proplist()).
 create_qr_code('undefined', _) -> 'undefined';
 create_qr_code(_, 'undefined') -> 'undefined';
 create_qr_code(AccountId, PortRequestId) ->

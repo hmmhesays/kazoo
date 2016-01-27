@@ -111,7 +111,7 @@ vcard_normalize_type(T) when is_list(T) -> wh_util:join_binary([vcard_normalize_
 vcard_normalize_type({T, V}) -> wh_util:join_binary([T, V], <<"=">>);
 vcard_normalize_type(T) -> T.
 
--type vcard_val() :: binary() | {char(), binaries()} | 'undefined'.
+-type vcard_val() :: api(binary() | {char(), binaries()}).
 -type vcard_type_token() :: ne_binary() | {ne_binary(), ne_binary()}.
 -type vcard_type() :: [vcard_type_token()] | vcard_type_token().
 -type vcard_field_token() :: {vcard_type(), vcard_val()}.

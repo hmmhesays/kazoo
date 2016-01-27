@@ -226,7 +226,7 @@ code_change(_OldVsn, TemplateName, _Extra) ->
 %%
 %% @end
 %%--------------------------------------------------------------------
--spec json_to_template_props(api_object()) -> 'undefined' | wh_proplist().
+-spec json_to_template_props(api_object()) -> api(wh_proplist()).
 json_to_template_props('undefined') -> 'undefined';
 json_to_template_props(JObj) ->
     normalize_proplist(wh_json:recursive_to_proplist(JObj)).

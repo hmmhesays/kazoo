@@ -146,7 +146,7 @@
                            #'exchange.declare'{} |
                            #'confirm.select'{} |
                            #'channel.flow'{} | #'channel.flow_ok'{} |
-                           '_' | 'undefined'.
+                           api('_').
 -type wh_amqp_commands() :: [wh_amqp_command()].
 
 -type wh_amqp_exchange() :: #'exchange.declare'{}.
@@ -177,7 +177,7 @@
                              ,channel_ref :: api_reference() | '_'
                              ,connection :: api_pid() | '$1' | '_'
                              ,broker :: api_binary() | '$1' | '_'
-                             ,assigned :: wh_timeout() | 'undefined' | '_'
+                             ,assigned :: api(wh_timeout()) | '_'
                              ,reconnect = 'false' :: boolean() | '_'
                              ,watchers = sets:new() :: sets:set() | pids() | '_'
                             }).

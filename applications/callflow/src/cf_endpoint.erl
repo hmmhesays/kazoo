@@ -1484,7 +1484,7 @@ get_bypass_media(JObj) ->
         'false' -> 'undefined'
     end.
 
--spec get_codecs(wh_json:object()) -> 'undefined' | ne_binaries().
+-spec get_codecs(wh_json:object()) -> api(ne_binaries()).
 get_codecs(JObj) ->
     case wh_json:get_value([<<"media">>, <<"audio">>, <<"codecs">>], JObj, [])
         ++ wh_json:get_value([<<"media">>, <<"video">>, <<"codecs">>], JObj, [])

@@ -86,7 +86,7 @@
 
 -type store_options() :: [{'origin', origin_tuple() | origin_tuples()} |
                           {'expires', wh_timeout()} |
-                          {'callback', 'undefined' | callback_fun()}
+                          {'callback', api(callback_fun())}
                          ] | [].
 -export_type([store_options/0]).
 
@@ -560,17 +560,17 @@ get_props_expires(Props) ->
             Expires
     end.
 
--spec get_props_callback(wh_proplist()) -> 'undefined' | callback_fun().
+-spec get_props_callback(wh_proplist()) -> api(callback_fun()).
 get_props_callback(Props) ->
     case props:get_value('callback', Props) of
         'undefined' -> 'undefined';
         Fun when is_function(Fun, 3) -> Fun
     end.
 
--spec get_props_origin(wh_proplist()) -> 'undefined' | origin_tuple() | origin_tuples().
+-spec get_props_origin(wh_proplist()) -> api(origin_tuple() | origin_tuples()).
 get_props_origin(Props) -> maybe_add_db_origin(props:get_value('origin', Props)).
 
--spec maybe_add_db_origin(wh_proplist()) -> 'undefined' | origin_tuple() | origin_tuples().
+-spec maybe_add_db_origin(wh_proplist()) -> api(origin_tuple() | origin_tuples()).
 maybe_add_db_origin(Props) when is_list(Props) -> maybe_add_db_origin(Props, []);
 maybe_add_db_origin({'db', Db}) ->
     [{'db',Db}, {'type', <<"database">>, Db}];
@@ -578,7 +578,7 @@ maybe_add_db_origin({'db', Db, Id}) ->
     [{'db',Db,Id}, {'type', <<"database">>, Db}];
 maybe_add_db_origin(Props) -> Props.
 
--spec maybe_add_db_origin(wh_proplist(), wh_proplist()) -> 'undefined' | origin_tuple() | origin_tuples().
+-spec maybe_add_db_origin(wh_proplist(), wh_proplist()) -> api(origin_tuple() | origin_tuples()).
 maybe_add_db_origin([], Acc) -> lists:reverse(props:unique(Acc));
 maybe_add_db_origin([{'db', Db} | Props], Acc) ->
     maybe_add_db_origin(Props, [{'type', <<"database">>, Db}, {'db',Db} |Acc]);

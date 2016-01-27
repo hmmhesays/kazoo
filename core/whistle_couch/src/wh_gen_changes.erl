@@ -333,7 +333,7 @@ code_change(_OldVersion, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
--spec get_update_seq(couchbeam_db() | 'undefined') -> list() | 'undefined'.
+-spec get_update_seq(api(couchbeam_db())) -> api(list()).
 get_update_seq('undefined') -> 'undefined';
 get_update_seq(#db{server='undefined'}) -> 'undefined';
 get_update_seq(#db{server=Server, name=DbName}) ->
