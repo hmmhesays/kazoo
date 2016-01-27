@@ -43,9 +43,7 @@ current_state(JObj) ->
     lager:debug("current state: ~p", [JObj]),
     wh_json:get_value(?PORT_PVT_STATE, JObj, ?PORT_UNCONFIRMED).
 
--spec get(ne_binary()) ->
-                 {'ok', wh_json:object()} |
-                 {'error', 'not_found'}.
+-spec get(ne_binary()) -> {'ok', wh_json:object()} | {'error', 'not_found'}.
 get(Number) ->
     wnm_number:find_port_in_number(Number).
 

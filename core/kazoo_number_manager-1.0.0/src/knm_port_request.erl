@@ -18,6 +18,7 @@
          ,maybe_transition/2
          ,charge_for_port/1, charge_for_port/2
          ,send_submitted_requests/0
+         ,migrate/0
         ]).
 
 -compile({'no_auto_import', [get/1]}).
@@ -48,7 +49,7 @@ init() ->
 -spec current_state(wh_json:object()) -> api_binary().
 current_state(JObj) ->
     lager:debug("current state: ~p", [JObj]),
-    wh_json:get_value(?PORT_PVT_STATE, JObj, ?PORT_WAITING).
+    wh_json:get_value(?PORT_PVT_STATE, JObj, ?PORT_UNCONFIRMED).
 
 %%--------------------------------------------------------------------
 %% @public
@@ -58,12 +59,11 @@ current_state(JObj) ->
 -spec public_fields(wh_json:object()) -> wh_json:object().
 public_fields(JObj) ->
     As = wh_doc:attachments(JObj, wh_json:new()),
-
-    wh_json:set_values([{<<"id">>, wh_json:get_value(<<"_id">>, JObj)}
-                        ,{<<"created">>, wh_json:get_value(<<"pvt_created">>, JObj)}
-                        ,{<<"updated">>, wh_json:get_value(<<"pvt_modified">>, JObj)}
+    wh_json:set_values([{<<"id">>, wh_doc:id(JObj)}
+                        ,{<<"created">>, wh_doc:created(JObj)}
+                        ,{<<"updated">>, wh_doc:modified(JObj)}
                         ,{<<"uploads">>, normalize_attachments(As)}
-                        ,{<<"port_state">>, wh_json:get_value(?PORT_PVT_STATE, JObj, ?PORT_WAITING)}
+                        ,{<<"port_state">>, wh_json:get_value(?PORT_PVT_STATE, JObj, ?PORT_UNCONFIRMED)}
                         ,{<<"sent">>, wh_json:get_value(?PVT_SENT, JObj, 'false')}
                        ]
                        ,wh_doc:public_fields(JObj)
@@ -76,15 +76,8 @@ public_fields(JObj) ->
 %%--------------------------------------------------------------------
 -spec get(ne_binary()) -> {'ok', wh_json:object()} | {'error', 'not_found'}.
 get(Number) when is_binary(Number) ->
-    case
-        couch_mgr:get_results(
-            ?KZ_PORT_REQUESTS_DB
-            ,<<"port_requests/port_in_numbers">>
-            ,[{'key', Number}
-              ,'include_docs'
-             ]
-        )
-    of
+    ViewOptions = [{'key', Number}, 'include_docs'],
+    case couch_mgr:get_results(?KZ_PORT_REQUESTS_DB, ?PORT_REQ_NUMBERS, ViewOptions) of
         {'ok', []} -> {'error', 'not_found'};
         {'ok', [Port]} -> {'ok', wh_json:get_value(<<"doc">>, Port)};
         {'error', _E} ->
@@ -92,7 +85,7 @@ get(Number) when is_binary(Number) ->
             {'error', 'not_found'}
     end;
 get(Number) ->
-    ?MODULE:get(knm_phone_number:number(Number)).
+    get(knm_phone_number:number(Number)).
 
 %%--------------------------------------------------------------------
 %% @public
@@ -103,7 +96,7 @@ get(Number) ->
 normalize_attachments(Attachments) ->
     wh_json:map(fun normalize_attachments_map/2, Attachments).
 
-
+%% @private
 -spec normalize_attachments_map(wh_json:key(), wh_json:json_term()) ->
                                        {wh_json:key(), wh_json:json_term()}.
 normalize_attachments_map(K, V) ->
@@ -117,14 +110,10 @@ normalize_attachments_map(K, V) ->
 -spec normalize_numbers(wh_json:object()) -> wh_json:object().
 normalize_numbers(JObj) ->
     Numbers = wh_json:get_value(<<"numbers">>, JObj, wh_json:new()),
-    wh_json:set_value(
-      <<"numbers">>
-      ,wh_json:map(fun normalize_number_map/2
-                   ,Numbers
-                  )
-      ,JObj
-     ).
+    Normalized = wh_json:map(fun normalize_number_map/2, Numbers),
+    wh_json:set_value(<<"numbers">>, Normalized, JObj).
 
+%% @private
 -spec normalize_number_map(wh_json:key(), wh_json:json_term()) ->
                                   {wh_json:key(), wh_json:json_term()}.
 normalize_number_map(N, Meta) ->
@@ -143,7 +132,7 @@ normalize_number_map(N, Meta) ->
 -spec transition_to_canceled(wh_json:object()) -> transition_response().
 
 transition_to_submitted(JObj) ->
-    transition(JObj, [?PORT_WAITING, ?PORT_REJECT], ?PORT_SUBMITTED).
+    transition(JObj, [?PORT_UNCONFIRMED, ?PORT_REJECT], ?PORT_SUBMITTED).
 
 transition_to_pending(JObj) ->
     transition(JObj, [?PORT_SUBMITTED], ?PORT_PENDING).
@@ -161,7 +150,7 @@ transition_to_rejected(JObj) ->
     transition(JObj, [?PORT_SUBMITTED, ?PORT_PENDING, ?PORT_SCHEDULED], ?PORT_REJECT).
 
 transition_to_canceled(JObj) ->
-    transition(JObj, [?PORT_WAITING, ?PORT_SUBMITTED, ?PORT_PENDING, ?PORT_SCHEDULED, ?PORT_REJECT], ?PORT_CANCELED).
+    transition(JObj, [?PORT_UNCONFIRMED, ?PORT_SUBMITTED, ?PORT_PENDING, ?PORT_SCHEDULED, ?PORT_REJECT], ?PORT_CANCELED).
 
 %%--------------------------------------------------------------------
 %% @public
@@ -206,7 +195,7 @@ transition(JObj, [_FromState | FromStates], ToState, CurrentState) ->
 -spec charge_for_port(wh_json:object()) -> 'ok' | 'error'.
 -spec charge_for_port(wh_json:object(), ne_binary()) -> 'ok' | 'error'.
 charge_for_port(JObj) ->
-    charge_for_port(JObj, wh_json:get_value(<<"pvt_account_id">>, JObj)).
+    charge_for_port(JObj, wh_doc:account_id(JObj)).
 charge_for_port(_JObj, AccountId) ->
     Services = wh_services:fetch(AccountId),
     Cost = wh_services:activation_charges(<<"number_services">>, <<"port">>, Services),
@@ -231,6 +220,18 @@ send_submitted_requests() ->
             _ = [maybe_send_request(wh_json:get_value(<<"doc">>, JObj)) || JObj <- JObjs],
             lager:debug("sent requests")
     end.
+
+%%--------------------------------------------------------------------
+%% @public
+%% @doc
+%% @end
+%%--------------------------------------------------------------------
+-spec migrate() -> 'ok'.
+migrate() ->
+    wh_util:put_callid(<<"port_request_migration">>),
+    lager:debug("migrating port request documents, if necessary"),
+    migrate(<<>>, 10),
+    lager:debug("finished migrating port request documents").
 
 %%%===================================================================
 %%% Internal functions
@@ -454,3 +455,60 @@ set_flag(JObj) ->
         {'error', _R} ->
             lager:debug("failed to set flag for submitted_port_request: ~p", [_R])
     end.
+
+
+-spec migrate(binary(), pos_integer()) -> 'ok'.
+migrate(StartKey, Limit) ->
+    {'ok', Docs} = fetch_docs(StartKey, Limit),
+    try lists:split(Limit, Docs) of
+        {Results, []} ->
+            migrate_docs(Results);
+        {Results, [NextResult]} ->
+            migrate_docs(Results),
+            lager:debug("migrated batch of ~p port requests", [Limit]),
+            timer:sleep(5000),
+            migrate(wh_json:get_value(<<"key">>, NextResult), Limit)
+    catch
+        'error':'badarg' ->
+            migrate_docs(Docs)
+    end.
+
+-spec migrate_docs(wh_json:objects()) -> 'ok'.
+migrate_docs([]) -> 'ok';
+migrate_docs(Docs) ->
+    UpdatedDocs =
+        [UpdatedDoc
+         || Doc <- Docs,
+            (UpdatedDoc = migrate_doc(wh_json:get_value(<<"doc">>, Doc))) =/= 'undefined'
+        ],
+    {'ok', _} = couch_mgr:save_docs(?KZ_PORT_REQUESTS_DB, UpdatedDocs),
+    'ok'.
+
+-spec migrate_doc(wh_json:object()) -> api_object().
+migrate_doc(PortRequest) ->
+    case wh_json:get_value(<<"pvt_tree">>, PortRequest) of
+        'undefined' -> update_doc(PortRequest);
+        _Tree -> 'undefined'
+    end.
+
+-spec update_doc(wh_json:object()) -> api_object().
+-spec update_doc(wh_json:object(), api_binary()) -> api_object().
+update_doc(PortRequest) ->
+    update_doc(PortRequest, wh_doc:account_id(PortRequest)).
+
+update_doc(_Doc, 'undefined') ->
+    lager:debug("no account id in doc ~s", [wh_doc:id(_Doc)]),
+    'undefined';
+update_doc(PortRequest, AccountId) ->
+    {'ok', AccountDoc} = kz_account:fetch(AccountId),
+    Tree = kz_account:tree(AccountDoc),
+    wh_json:set_value(<<"pvt_tree">>, Tree, PortRequest).
+
+-spec fetch_docs(binary(), pos_integer()) -> {'ok', wh_json:objects()}.
+fetch_docs(StartKey, Limit) ->
+    couch_mgr:all_docs(?KZ_PORT_REQUESTS_DB
+                       ,[{'startkey', StartKey}
+                         ,{'limit', Limit + 1}
+                         ,'include_docs'
+                        ]
+                      ).

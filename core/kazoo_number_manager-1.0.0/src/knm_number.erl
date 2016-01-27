@@ -30,6 +30,7 @@
         ]).
 
 -include("knm.hrl").
+-include_lib("kazoo_number_manager/include/knm_port_request.hrl").
 
 -record(knm_number, {knm_phone_number :: knm_phone_number:knm_number()
                      ,services :: wh_services:services()
@@ -643,16 +644,11 @@ default_force_outbound() ->
 %% @doc
 %% @end
 %%--------------------------------------------------------------------
--spec fetch_account_from_ports(ne_binary(), {'error', _}) ->
+-spec fetch_account_from_ports(ne_binary(), {'error', any()}) ->
                                       lookup_account_return().
 fetch_account_from_ports(NormalizedNum, Error) ->
-    case
-        couch_mgr:get_results(
-          ?KZ_PORT_REQUESTS_DB
-          ,<<"port_requests/port_in_numbers">>
-          ,[{'key', NormalizedNum}]
-         )
-    of
+    ViewOptions = [{'key', NormalizedNum}],
+    case couch_mgr:get_results(?KZ_PORT_REQUESTS_DB, ?PORT_REQ_NUMBERS, ViewOptions) of
         {'ok', []} ->
             lager:debug("no port for ~s: ~p", [NormalizedNum, Error]),
             Error;
