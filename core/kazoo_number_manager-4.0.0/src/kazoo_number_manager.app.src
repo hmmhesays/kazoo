@@ -1,0 +1,19 @@
+{application, kazoo_number_manager,
+ [
+  {description, "Number Manager for Kazoo"},
+  {vsn, "4.0.0"},
+  {modules, []},
+  {registered, [ ]},
+  {applications, [ kernel
+                 , stdlib
+
+                 , whistle
+                 , whistle_couch
+                 , whistle_config
+                 , whistle_services
+                 , whistle_transactions
+
+                 , ibrowse
+                 , lager
+                 ]}
+ ]}.
