@@ -32,6 +32,8 @@
 -include("knm.hrl").
 -include_lib("kazoo_number_manager/include/knm_port_request.hrl").
 
+-define(PORT_REQ_NUMBERS, <<"port_requests/port_in_numbers">>).
+
 -record(knm_number, {knm_phone_number :: knm_phone_number:knm_number()
                      ,services :: wh_services:services()
                      ,transactions = [] :: wh_transaction:transactions()

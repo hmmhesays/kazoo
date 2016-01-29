@@ -27,6 +27,7 @@
 -include_lib("kazoo_number_manager/include/knm_port_request.hrl").
 
 -define(VIEW_LISTING_SUBMITTED, <<"port_requests/listing_submitted">>).
+-define(PORT_REQ_NUMBERS, <<"port_requests/port_in_numbers">>).
 
 -type transition_response() :: {'ok', wh_json:object()} |
                                {'error', 'invalid_state_transition'}.

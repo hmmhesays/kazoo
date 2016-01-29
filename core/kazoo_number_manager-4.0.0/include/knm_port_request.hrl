@@ -21,7 +21,5 @@
                       ,?PORT_CANCELED
                      ]).
 
--define(PORT_REQ_NUMBERS, <<"port_requests/port_in_numbers">>).
-
 -define(KNM_PORT_REQUEST_HRL, 'true').
 -endif.
