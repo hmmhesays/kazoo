@@ -29,6 +29,9 @@
 -define(SERVER, ?MODULE).
 
 -define(MOD_CONFIG_CAT, <<(?KNM_CONFIG_CAT)/binary, ".port_request">>).
+-define(CLEANUP_ROUNDTRIP_TIME,
+        whapps_config:get_integer(?MOD_CONFIG_CAT, <<"crawler_delay_time_ms">>, ?MILLISECONDS_IN_MINUTE)).
+
 
 -record(state, {cleanup_ref :: reference()}).
 
@@ -47,8 +50,7 @@ stop() ->
     gen_server:cast(?SERVER, 'stop').
 
 cleanup_timer() ->
-    Timeout = whapps_config:get_integer(?MOD_CONFIG_CAT, <<"crawler_delay_time_ms">>, ?MILLISECONDS_IN_MINUTE),
-    erlang:start_timer(Timeout, self(), 'ok').
+    erlang:start_timer(?CLEANUP_ROUNDTRIP_TIME, self(), 'ok').
 
 %%%===================================================================
 %%% gen_server callbacks

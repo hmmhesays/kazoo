@@ -217,6 +217,7 @@ send_submitted_requests() ->
     of
         {'error', _R} ->
             lager:error("failed to open view port_requests/listing_submitted ~p", [_R]);
+        {'ok', []} -> 'ok';
         {'ok', JObjs} ->
             _ = [maybe_send_request(wh_json:get_value(<<"doc">>, JObj)) || JObj <- JObjs],
             lager:debug("sent requests")
@@ -243,8 +244,8 @@ migrate() ->
 %% @doc
 %% @end
 %%--------------------------------------------------------------------
--spec completed_port(wh_json:object()) ->
-                            transition_response().
+
+-spec completed_port(wh_json:object()) -> transition_response().
 completed_port(PortReq) ->
     case charge_for_port(PortReq) of
         'ok' ->
@@ -259,12 +260,11 @@ completed_port(PortReq) ->
 %% @doc
 %% @end
 %%--------------------------------------------------------------------
--spec transition_numbers(wh_json:object()) ->
-                                transition_response().
+-spec transition_numbers(wh_json:object()) -> transition_response().
 transition_numbers(PortReq) ->
     Numbers = wh_json:get_keys(<<"numbers">>, PortReq),
     PortOps = [enable_number(N) || N <- Numbers],
-    case lists:all(fun(X) -> wh_util:is_true(X) end, PortOps) of
+    case lists:all(fun wh_util:is_true/1, PortOps) of
         'true' ->
             lager:debug("all numbers ported, removing from port request"),
             ClearedPortRequest = clear_numbers_from_port(PortReq),
@@ -316,13 +316,10 @@ enable_number(Num) ->
 -spec maybe_send_request(wh_json:object()) -> 'ok'.
 -spec maybe_send_request(wh_json:object(), api_binary()) -> 'ok'.
 maybe_send_request(JObj) ->
-    Id = wh_json:get_value(<<"_id">>, JObj),
-    wh_util:put_callid(Id),
+    wh_util:put_callid(wh_doc:id(JObj)),
 
-    AccountId = wh_json:get_value(<<"pvt_account_id">>, JObj),
-    AccountDb = wh_util:format_account_id(AccountId, 'encoded'),
-
-    case couch_mgr:open_cache_doc(AccountDb, AccountId) of
+    AccountId = wh_doc:account_id(JObj),
+    case kz_account:fetch(AccountId) of
         {'error', _R} ->
             lager:error("failed to open account ~s:~p", [AccountId, _R]);
         {'ok', AccountDoc} ->
@@ -330,9 +327,10 @@ maybe_send_request(JObj) ->
             maybe_send_request(JObj, Url)
     end.
 
-maybe_send_request(JObj, 'undefined')->
-    AccountId = wh_json:get_value(<<"pvt_account_id">>, JObj),
-    lager:debug("'submitted_port_requests_url' is not set for account ~s", [AccountId]);
+maybe_send_request(_JObj, 'undefined')->
+    lager:debug("'submitted_port_requests_url' is not set for account ~s"
+                ,[wh_doc:account_id(_JObj)]
+               );
 maybe_send_request(JObj, Url)->
     case send_request(JObj, Url) of
         'error' -> 'ok';
@@ -350,13 +348,11 @@ maybe_send_request(JObj, Url)->
 %%--------------------------------------------------------------------
 -spec send_request(wh_json:object(), ne_binary()) -> 'error' | 'ok'.
 send_request(JObj, Url) ->
-    Id = wh_json:get_value(<<"_id">>, JObj),
-
     Headers = [{"Content-Type", "application/json"}
                ,{"User-Agent", wh_util:to_list(erlang:node())}
               ],
 
-    Uri = wh_util:to_list(<<Url/binary, "/", Id/binary>>),
+    Uri = wh_util:to_list(<<Url/binary, "/", (wh_doc:id(JObj))/binary>>),
 
     Remove = [<<"_rev">>
               ,<<"ui_metadata">>
