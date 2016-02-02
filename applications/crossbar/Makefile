@@ -2,6 +2,7 @@ ROOT = ../..
 PROJECT = crossbar
 
 EBINS = $(ROOT)/core/kazoo_number_manager/ebin \
+	$(ROOT)/core/whistle_number_manager/ebin \
 	$(ROOT)/core/whistle_couch/ebin \
 	$(ROOT)/core/whistle_transactions/ebin \
 	$(ROOT)/core/braintree/ebin \
