@@ -217,9 +217,8 @@ format_resp([{Num, JObj}|T], Numbers) ->
                ,{fun knm_phone_number:set_number_db/2, NumberDb}
                ,{fun knm_phone_number:set_state/2, ?NUMBER_STATE_DISCOVERY}
                ,fun knm_phone_number:save/1
-               ,fun wh_util:identity/1
               ],
-    Number = knm_phone_number:setters(knm_phone_number:new(), Updates),
+    {'ok', Number} = knm_phone_number:setters(knm_phone_number:new(), Updates),
     format_resp(T, [Number|Numbers]).
 
 %%--------------------------------------------------------------------

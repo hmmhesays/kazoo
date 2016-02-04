@@ -165,5 +165,5 @@ process_response([JObj|JObjs], Numbers) ->
                ,{fun knm_phone_number:set_carrier_data/2, JObj}
                ,{fun knm_phone_number:set_number_db/2, NumberDb}
               ],
-    Number = knm_phone_number:setters(knm_phone_number:new(), Updates),
+    {'ok', Number} = knm_phone_number:setters(knm_phone_number:new(), Updates),
     process_response(JObjs, [Number|Numbers]).

@@ -239,7 +239,7 @@ format_numbers_resp([{Num, JObj}|T], Numbers) ->
                ,{fun knm_phone_number:set_number_db/2, NumberDb}
                ,{fun knm_phone_number:set_state/2, ?NUMBER_STATE_DISCOVERY}
               ],
-    Number = knm_phone_number:setters(knm_phone_number:new(), Updates),
+    {'ok', Number} = knm_phone_number:setters(knm_phone_number:new(), Updates),
     format_numbers_resp(T, [Number|Numbers]).
 
 %%--------------------------------------------------------------------
@@ -319,7 +319,7 @@ format_blocks_resp_fold([{Num, JObj}|T], Numbers) ->
                ,{fun knm_phone_number:set_carrier_data/2, JObj}
                ,{fun knm_phone_number:set_number_db/2, NumberDb}
               ],
-    Number = knm_phone_number:setters(knm_phone_number:new(), Updates),
+    {'ok', Number} = knm_phone_number:setters(knm_phone_number:new(), Updates),
     format_blocks_resp_fold(T, [Number|Numbers]).
 
 %%--------------------------------------------------------------------

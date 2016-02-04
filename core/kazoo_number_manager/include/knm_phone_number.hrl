@@ -5,11 +5,9 @@
 
 -define(DEFAULT_AUTH_BY, <<"system">>).
 
--type number_return() :: {'ok', knm_phone_number:knm_number()} |
-                         {'error', any()}.
+-type number_return() :: {'ok', knm_phone_number:knm_number()} | {'error', any()}.
 
--type knm_number_return() :: {'ok', knm_number:knm_number()} |
-                             {'error', any()}.
+-type knm_number_return() :: {'ok', knm_number:knm_number()} | {'error', any()}.
 
 -define(PVT_DB_NAME, <<"pvt_db_name">>).
 -define(PVT_ASSIGNED_TO, <<"pvt_assigned_to">>).
@@ -36,8 +34,10 @@
 -define(NUMBER_STATE_DISCONNECTED, <<"disconnected">>).
 -define(NUMBER_STATE_DELETED, <<"deleted">>).
 
--define(DEFAULT_PROVIDER_MODULES, [<<"cnam_notifier">>, <<"port_notifier">>
-                                   ,<<"failover">> ,<<"prepend">>
+-define(DEFAULT_PROVIDER_MODULES, [<<"cnam_notifier">>
+                                   ,<<"port_notifier">>
+                                   ,<<"failover">>
+                                   ,<<"prepend">>
                                   ]).
 
 -define(EMERGENCY_SERVICES_KEY, <<"e911">>).

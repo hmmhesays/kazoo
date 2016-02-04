@@ -169,15 +169,9 @@ update(Num, Routines, Options) ->
 -spec update_phone_number(knm_number(), knm_phone_number:set_functions()) ->
                                  knm_number_return().
 update_phone_number(Number, Routines) ->
-    PhoneNumber = phone_number(Number),
-    case knm_phone_number:setters(PhoneNumber, Routines) of
+    case knm_phone_number:setters(phone_number(Number), Routines) of
         {'error', _R}=Error -> Error;
         {'ok', UpdatedPhoneNumber} ->
-            wrap_phone_number_return(
-              knm_phone_number:save(UpdatedPhoneNumber)
-              ,Number
-             );
-        UpdatedPhoneNumber ->
             wrap_phone_number_return(
               knm_phone_number:save(UpdatedPhoneNumber)
               ,Number
@@ -409,16 +403,13 @@ apply_routines(Number, Routines) ->
 %% @doc
 %% @end
 %%--------------------------------------------------------------------
--spec maybe_disconnect(knm_phone_number:knm_number()) ->
-                              number_return().
+-spec maybe_disconnect(knm_phone_number:knm_number()) -> number_return().
 maybe_disconnect(PhoneNumber) ->
     case knm_phone_number:reserve_history(PhoneNumber) of
         [] -> disconnect_or_delete(PhoneNumber);
         [PrevReservation|History] ->
-            lager:debug(
-              "unwinding reservation history, reserving on account ~s"
-              ,[PrevReservation]
-             ),
+            lager:debug("unwinding reservation history, reserving on account ~s"
+                        ,[PrevReservation]),
             Routines = [{fun knm_phone_number:set_state/2, ?NUMBER_STATE_RESERVED}
                         ,{fun knm_phone_number:set_reserve_history/2, History}
                        ],
