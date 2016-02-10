@@ -50,12 +50,12 @@ find(Num, Quantity, Opts) ->
                )
       end
       ,[]
-      ,?MODULE:list_modules()
+      ,list_modules()
      ).
 
 -spec attempt_find(atom(), ne_binary(), integer(), wh_proplist()) ->
                           {'ok', knm_phone_number:knm_numbers()} |
-                          {'error', _}.
+                          {'error', any()}.
 attempt_find(Mod, NormalizedNumber, Quantity, Opts) ->
     try Mod:find_numbers(NormalizedNumber, Quantity, Opts) of
         Resp -> Resp
@@ -73,8 +73,8 @@ attempt_find(Mod, NormalizedNumber, Quantity, Opts) ->
 %% @end
 %%--------------------------------------------------------------------
 -type checked_numbers() :: [{atom(), {'ok', wh_json:object()} |
-                             {'error', _} |
-                             {'EXIT', _}
+                             {'error', any()} |
+                             {'EXIT', any()}
                             }].
 -spec check(ne_binaries()) -> checked_numbers().
 -spec check(ne_binaries(), wh_proplist()) -> checked_numbers().
@@ -85,7 +85,7 @@ check(Numbers, Opts) ->
     FormattedNumbers = [knm_converters:normalize(Num) || Num <- Numbers],
     lager:info("attempting to check ~p ", [FormattedNumbers]),
     [{Module, catch(Module:check_numbers(FormattedNumbers, Opts))}
-     || Module <- ?MODULE:list_modules()
+     || Module <- list_modules()
     ].
 
 %%--------------------------------------------------------------------
@@ -144,7 +144,7 @@ disconnect(Number) ->
 %% @end
 %%--------------------------------------------------------------------
 -type find_resp() :: {'ok', knm_phone_number:knm_numbers()} |
-                     {'error', _}.
+                     {'error', any()}.
 
 -spec format_find_resp(atom(), find_resp(), wh_json:objects()) ->
                               wh_json:objects().

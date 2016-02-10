@@ -90,10 +90,7 @@ init() ->
 %%--------------------------------------------------------------------
 -spec authenticate(cb_context:context()) -> boolean().
 authenticate(Context) ->
-    maybe_authenticate(
-        cb_context:req_verb(Context)
-        ,cb_context:req_nouns(Context)
-    ).
+    maybe_authenticate(cb_context:req_verb(Context), cb_context:req_nouns(Context)).
 
 -spec maybe_authenticate(http_method(), req_nouns()) -> boolean().
 maybe_authenticate(?HTTP_GET, [{<<"phone_numbers">>, []}]) ->
@@ -110,10 +107,7 @@ maybe_authenticate(_Verb, _Nouns) ->
 %%--------------------------------------------------------------------
 -spec authorize(cb_context:context()) -> boolean().
 authorize(Context) ->
-    maybe_authorize(
-        cb_context:req_verb(Context)
-        ,cb_context:req_nouns(Context)
-    ).
+    maybe_authorize(cb_context:req_verb(Context), cb_context:req_nouns(Context)).
 
 maybe_authorize(?HTTP_GET, [{<<"phone_numbers">>,[]}]) ->
     'true';
@@ -213,8 +207,7 @@ post(Context, ?LOCALITY) ->
         _ -> Context
     end;
 post(Context, ?FIX) ->
-    AccountId = cb_context:account_id(Context),
-    _ = knm_maintenance:fix_by_account(AccountId),
+    _ = knm_maintenance:fix_by_account(cb_context:account_id(Context)),
     summary(Context);
 post(Context, _Number) ->
     Context.
