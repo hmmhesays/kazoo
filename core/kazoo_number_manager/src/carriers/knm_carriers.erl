@@ -96,8 +96,13 @@ check(Numbers, Opts) ->
 %%--------------------------------------------------------------------
 -spec list_modules() -> atoms().
 list_modules() ->
-    CarrierModules =
+    Modules =
         whapps_config:get(?KNM_CONFIG_CAT, <<"carrier_modules">>, ?DEFAULT_CARRIER_MODULES),
+    CarrierModules =
+        case lists:member(?LEGACY_LOCAL_CARRIER, Modules) of
+            'false' -> Modules;
+            'true' -> (Modules -- [?LEGACY_LOCAL_CARRIER]) ++ [?LOCAL_CARRIER]
+        end,
     [Module
      || M <- CarrierModules,
         (Module = wh_util:try_load_module(M)) =/= 'false'

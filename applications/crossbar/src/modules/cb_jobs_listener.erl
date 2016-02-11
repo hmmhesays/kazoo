@@ -24,6 +24,7 @@
         ]).
 
 -include("crossbar.hrl").
+-include_lib("kazoo_number_manager/include/knm_phone_number.hrl").
 
 -define(SERVER, ?MODULE).
 
@@ -133,11 +134,12 @@ select_carrier_module(Job) ->
     ResourceId = wh_json:get_value(<<"resource_id">>, Job),
     case couch_mgr:open_cache_doc(?WH_OFFNET_DB, ResourceId) of
         {'ok', _} ->
-            lager:debug("found resource ~s in ~s, using wnm_other", [ResourceId, ?WH_OFFNET_DB]),
-            <<"wnm_other">>;
+            lager:debug("found resource ~s in ~s, using ~s", [ResourceId, ?WH_OFFNET_DB, ?OTHER_CARRIER]),
+            ?OTHER_CARRIER;
         {'error', _E} ->
-            lager:debug("resource ~s is not a system resource(~p), using wnm_local", [ResourceId, _E]),
-            <<"wnm_local">>
+            lager:debug("resource ~s is not a system resource(~p), using ~s"
+                        ,[ResourceId, _E, ?LOCAL_CARRIER]),
+            ?LOCAL_CARRIER
     end.
 
 -spec maybe_create_number(wh_json:object(), ne_binary(), ne_binary(), api_binary(), ne_binary()) ->
