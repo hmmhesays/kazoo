@@ -25,8 +25,8 @@
 -export([maybe_get_account_default_number/4]).
 
 -define(CALLER_PRIVACY(CCVs)
-        ,(wh_json:get_value(<<"Caller-Privacy-Number">>, CCVs, 'false')
-        orelse wh_json:get_value(<<"Caller-Privacy-Name">>, CCVs, 'false'))
+        ,(wh_json:is_true(<<"Caller-Privacy-Number">>, CCVs, 'false')
+        orelse wh_json:is_true(<<"Caller-Privacy-Name">>, CCVs, 'false'))
        ).
 
 %%-----------------------------------------------------------------------------
