@@ -111,7 +111,7 @@ handle_media_doc_change(JObj, ?DOC_DELETED) ->
                                 ,MediaId
                                });
 handle_media_doc_change(JObj, _Change) ->
-    {'ok', Doc} = couch_mgr:open_doc(wh_json:get_value(<<"Database">>, JObj)
+    {'ok', Doc} = kz_datamgr:open_doc(wh_json:get_value(<<"Database">>, JObj)
                                      ,wh_json:get_value(<<"ID">>, JObj)
                                     ),
     gen_listener:cast(?SERVER, {'add_mapping'
@@ -282,7 +282,7 @@ init_map(Db, View, StartKey, Limit, SendFun) ->
                ,{'limit', Limit+1}
                ,'include_docs'
               ],
-    case couch_mgr:get_results(Db, View, Options) of
+    case kz_datamgr:get_results(Db, View, Options) of
         {'ok', []} -> lager:debug("no more results in ~s:~s", [Db, View]);
         {'ok', ViewResults} -> init_map(Db, View, StartKey, Limit, SendFun, ViewResults);
         {'error', _E} -> lager:debug("error loading ~s in ~s: ~p", [View, Db, _E])
@@ -391,7 +391,7 @@ init_account_map(AccountId, PromptId) ->
 load_account_map(AccountId, PromptId) ->
     lager:debug("attempting to load account map for ~s/~s", [AccountId, PromptId]),
 
-    case couch_mgr:get_results(wh_util:format_account_id(AccountId, 'encoded')
+    case kz_datamgr:get_results(wh_util:format_account_id(AccountId, 'encoded')
                                ,<<"media/listing_by_prompt">>
                                ,[{'startkey', [PromptId]}
                                  ,{'endkey', [PromptId, wh_json:new()]}
