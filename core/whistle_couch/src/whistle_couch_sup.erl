@@ -18,14 +18,16 @@
          ,compactor_pid/0
         ]).
 
--define(ORIGIN_BINDINGS, [[]]).
+-define(ORIGIN_BINDINGS, [[]
+                         ]).
+
 -define(CACHE_PROPS, [{'origin_bindings', ?ORIGIN_BINDINGS}
                       ,'new_node_flush'
                       ,'channel_reconnect_flush'
                      ]).
 
 -define(CHILDREN, [?WORKER('whistle_couch_init')
-                   ,?CACHE_ARGS(?WH_COUCH_CACHE, ?CACHE_PROPS)
+                   ,?CACHE_ARGS(?CACHE_NAME, ?CACHE_PROPS)
                    ,?SUPER('wh_couch_connection_sup')
                    ,?SUPER('wh_change_handler_sup')
                    ,?WORKER('wh_couch_connections')

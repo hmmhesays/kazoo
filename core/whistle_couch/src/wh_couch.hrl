@@ -16,7 +16,7 @@
                        ,{'connect_timeout', 500}
                       ]).
 
--define(WH_COUCH_CACHE, 'whistle_couch_cache').
+-define(CACHE_NAME, 'whistle_couch_cache').
 
 -define(FIXTURES_FOLDER, "fixtures").
 

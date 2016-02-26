@@ -21,12 +21,14 @@
 
 -define(SERVER, ?MODULE).
 
--define(ORIGIN_BINDINGS, [[{'type', <<"number">>}]]).
+-define(ORIGIN_BINDINGS, [[{'type', <<"number">>}]
+                         ]).
 
--define(CACHE_NUMBER_PROPS, [{'origin_bindings', ?ORIGIN_BINDINGS}]).
+-define(CACHE_PROPS, [{'origin_bindings', ?ORIGIN_BINDINGS}
+                     ]).
 
 %% Helper macro for declaring children of supervisor
--define(CHILDREN, [?CACHE_ARGS(?WNM_NUMBER_CACHE, ?CACHE_NUMBER_PROPS)
+-define(CHILDREN, [?CACHE_ARGS(?CACHE_NAME, ?CACHE_PROPS)
                    ,?WORKER('wh_port_request_crawler')
                    ,?WORKER('wnm_number_crawler')
                   ]).

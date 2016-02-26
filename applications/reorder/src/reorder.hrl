@@ -6,6 +6,7 @@
 -define(APP_NAME, <<"reorder">>).
 -define(APP_VERSION, <<"4.0.0">> ).
 
+-define(CACHE_NAME, 'reorder_cache').
 
 -define(HANDOFF_HRL, true).
 -endif.
