@@ -1608,7 +1608,7 @@ queued_jobs_status(Jobs) ->
 
 -spec compact_automatically() -> boolean().
 compact_automatically() ->
-    Default = case kz_cache:fetch_local(?CACHE_NAME, <<"compact_automatically">>) of
+    Default = case kzc_cache:fetch(?CACHE_NAME, <<"compact_automatically">>) of
                   {'ok', V} -> wh_util:is_true(V);
                   {'error', 'not_found'} -> 'false'
               end,
@@ -1624,7 +1624,7 @@ compact_automatically(Boolean) ->
     CacheProps = [{'expires', 'infinity'}
                   ,{'origin', {'db', ?WH_CONFIG_DB, ?CONFIG_CAT}}
                  ],
-    kz_cache:store_local(?CACHE_NAME, <<"compact_automatically">>, Boolean, CacheProps).
+    kzc_cache:store(?CACHE_NAME, <<"compact_automatically">>, Boolean, CacheProps).
 
 -spec should_compact(server(), ne_binary(), ?HEUR_NONE | ?HEUR_RATIO) -> boolean().
 should_compact(_Conn, _Encoded, ?HEUR_NONE) ->

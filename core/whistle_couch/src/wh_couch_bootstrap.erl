@@ -59,7 +59,7 @@ init([]) ->
     CacheProps = [{'expires', 'infinity'}
                   ,{'origin', {'db', ?WH_CONFIG_DB, ?CONFIG_CAT}}
                  ],
-    kz_cache:store_local(?CACHE_NAME, <<"compact_automatically">>, AutoCmpt, CacheProps),
+    kzc_cache:store(?CACHE_NAME, <<"compact_automatically">>, AutoCmpt, CacheProps),
     [Cookie|_] = wh_config:get_atom('bigcouch', 'cookie', ['monster']),
     wh_couch_connections:set_node_cookie(Cookie),
     lager:info("waiting for first bigcouch/haproxy connection...", []),

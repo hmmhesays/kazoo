@@ -137,13 +137,13 @@ lookup_account_by_number('undefined') ->
 lookup_account_by_number(Num) ->
     Number = wnm_util:to_e164(Num),
     Key = {'account_lookup', Number},
-    case kz_cache:peek_local(?CACHE_NAME, Key) of
+    case kzc_cache:peek(?CACHE_NAME, Key) of
         {'ok', Ok} -> Ok;
         {'error', 'not_found'} ->
             case fetch_account_by_number(Number) of
                 {'ok', _, _}=Ok ->
                     CacheProps = [{'origin', [{'db', wnm_util:number_to_db_name(Number), Number}]}],
-                    kz_cache:store_local(?CACHE_NAME, Key, Ok, CacheProps),
+                    kzc_cache:store(?CACHE_NAME, Key, Ok, CacheProps),
                     Ok;
                 Else -> Else
             end
